@@ -9,25 +9,19 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-// ===================================================================
-// KOMPONEN UNTUK HALAMAN PENCARIAN
-// ===================================================================
-
-// Komponen kecil untuk Chip Kota
 const CityChip = ({ city, isActive, onClick }) => (
   <button
     onClick={() => onClick(city)}
     className={`px-6 py-2 rounded-full font-semibold transition-all ${
       isActive
-        ? "bg-[#f5f1dc] text-[#2a4c44]" // Krem
-        : "bg-[#8fb0a2] text-white" // Hijau lebih muda
+        ? "bg-[#f5f1dc] text-[#2a4c44]" 
+        : "bg-[#8fb0a2] text-white" 
     }`}
   >
     {city}
   </button>
 );
 
-// Komponen untuk Baris Bioskop
 const CinemaRow = ({ name, logoUrl, onSelect }) => (
   <button
     onClick={onSelect}
@@ -35,7 +29,6 @@ const CinemaRow = ({ name, logoUrl, onSelect }) => (
   >
     <div className="flex flex-col items-start">
       <h3 className="text-lg font-bold text-[#2a4c44]">{name}</h3>
-      {/* Menggunakan teks "CINIX" sebagai pengganti logo img */}
       <span className="text-sm font-semibold text-[#2a4c44] opacity-70">
         CINIX
       </span>
@@ -44,7 +37,6 @@ const CinemaRow = ({ name, logoUrl, onSelect }) => (
   </button>
 );
 
-// Komponen Header (Berbeda dari MainHeader)
 function SearchHeader({ onNavigateHome, onNavigateLogin }) {
   return (
     <header className="flex items-center justify-between px-8 py-4 bg-[#f5f1dc] shadow">
@@ -83,12 +75,10 @@ function SearchHeader({ onNavigateHome, onNavigateLogin }) {
   );
 }
 
-// Komponen Halaman Pencarian (Default Export)
 export default function SearchPage({ onNavigateHome, onNavigateLogin }) {
   const [activeCity, setActiveCity] = useState("JAKARTA");
   const cities = ["JAKARTA", "BOGOR", "DEPOK", "TANGERANG", "BEKASI"];
 
-  // Data bioskop palsu
   const cinemas = [
     { id: 1, name: "AEON MALL TANJUNG BARAT XXI" },
     { id: 2, name: "FX SUDIRMAN CGV" },
@@ -104,7 +94,6 @@ export default function SearchPage({ onNavigateHome, onNavigateLogin }) {
       <main className="max-w-4xl mx-auto p-6">
         <h1 className="text-2xl font-bold text-white mb-4">BIOSKOP / CINEMA</h1>
 
-        {/* Search Bar */}
         <div className="relative mb-6">
           <input
             type="text"
@@ -117,7 +106,6 @@ export default function SearchPage({ onNavigateHome, onNavigateLogin }) {
           />
         </div>
 
-        {/* City Chips */}
         <div className="flex flex-wrap gap-4 mb-6">
           {cities.map((city) => (
             <CityChip
@@ -129,7 +117,6 @@ export default function SearchPage({ onNavigateHome, onNavigateLogin }) {
           ))}
         </div>
 
-        {/* Daftar Bioskop */}
         <div className="space-y-4">
           {cinemas.map((cinema) => (
             <CinemaRow

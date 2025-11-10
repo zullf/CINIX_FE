@@ -7,10 +7,6 @@ import {
   ChevronLeft,
 } from "lucide-react";
 
-// ===================================================================
-// KOMPONEN (Header, Seat, LegendItem) - Tidak ada perubahan
-// ===================================================================
-
 function PaymentHeader({
   onNavigateHome,
   onNavigateLogin,
@@ -19,21 +15,18 @@ function PaymentHeader({
 }) {
   return (
     <header className="flex items-center justify-between px-8 py-4 bg-[#f5f1dc] shadow">
-      {/* Tombol Kembali (di kiri) */}
       <button
-        onClick={onNavigateHome} // Mengarahkan kembali ke home (atau detail)
+        onClick={onNavigateHome} 
         className="flex items-center gap-2 text-[#2a4c44] font-semibold"
       >
         <ChevronLeft size={24} />
       </button>
 
-      {/* Info Film & Bioskop (di tengah) */}
       <div className="flex flex-col items-center">
         <h1 className="text-xl font-bold text-[#2a4c44]">{movieTitle}</h1>
         <span className="text-sm text-gray-600">{cinemaName}</span>
       </div>
 
-      {/* Navigasi Kanan (konsisten) */}
       <div className="flex gap-6 text-[#2a4c44] font-semibold">
         <button
           onClick={onNavigateHome}
@@ -62,7 +55,7 @@ const Seat = ({ status = "available", id, onClick }) => {
   const getSeatClass = () => {
     switch (status) {
       case "selected":
-        return "bg-[#6a8e7f] text-white"; // Hijau (Warna tema)
+        return "bg-[#6a8e7f] text-white"; 
       case "taken":
         return "bg-gray-400 cursor-not-allowed text-white";
       case "available":
@@ -89,28 +82,21 @@ const LegendItem = ({ colorClass, text }) => (
   </div>
 );
 
+const rows = ["K", "J", "I", "H", "G", "F", "E", "D", "C", "B", "A"]; 
+const leftSeatNumbers = [15, 14, 13, 12, 11, 10, 9];
+const rightSeatNumbers = [8, 7, 6, 5, 4, 3, 2, 1]; 
 
-// --- PERUBAHAN 1: Tentukan baris dan jumlah kursi ---
-// Kita pindahkan ini ke atas agar bisa dipakai di createSeats dan render
-const rows = ["K", "J", "I", "H", "G", "F", "E", "D", "C", "B", "A"]; // Dibalik: K -> A
-const leftSeatNumbers = [15, 14, 13, 12, 11, 10, 9]; // Blok kiri
-const rightSeatNumbers = [8, 7, 6, 5, 4, 3, 2, 1]; // Blok kanan
-
-// Data Kursi
 const createSeats = () => {
   const seats = [];
   rows.forEach((row) => {
-    // Buat kursi blok kiri
     leftSeatNumbers.forEach((num) => {
       const id = `${row}${num}`;
       let status = "available";
-      // Logika 'taken' (kursi terisi) sederhana, bisa Anda kembangkan
       if ((row === "K" && num === 10) || (row === "J" && num === 12)) {
         status = "taken";
       }
       seats.push({ id, row, num, status, block: "left" });
     });
-    // Buat kursi blok kanan
     rightSeatNumbers.forEach((num) => {
       const id = `${row}${num}`;
       let status = "available";
@@ -123,7 +109,6 @@ const createSeats = () => {
   return seats;
 };
 
-// Komponen Halaman Pembayaran (Default Export)
 export default function PaymentPage({
   movie,
   cinema,
@@ -135,7 +120,6 @@ export default function PaymentPage({
   const [selectedSeats, setSelectedSeats] = useState([]);
   const ticketPrice = 50000;
 
-  // Fallback data
   const displayMovie = movie || {
     title: "TRON ARES (2025)",
     img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8tq8lygfqv4hEIDsAjS88Rdh-z99CusKQyg&s",
@@ -154,7 +138,6 @@ export default function PaymentPage({
     setSelectedSeats(newSelectedSeats);
   };
 
-  // --- PERBAIKAN: Fungsi 'getSeatStatus' yang hilang telah ditambahkan kembali ---
   const getSeatStatus = (id) => {
     if (selectedSeats.includes(id)) return "selected";
     const seat = allSeats.find((s) => s.id === id);
@@ -169,7 +152,6 @@ export default function PaymentPage({
   }).format(totalPrice);
 
   return (
-    // Latar belakang diubah menjadi HIJAU (sesuai tema)
     <div className="min-h-screen bg-[#6a8e7f] flex flex-col">
       <PaymentHeader
         onNavigateHome={onNavigateHome}
@@ -178,10 +160,8 @@ export default function PaymentPage({
         cinemaName={displayCinema}
       />
 
-      {/* Konten Utama (Pemilihan Kursi & Ringkasan) */}
       <div className="flex-grow flex flex-col md:flex-row p-6 gap-6">
         
-        {/* Bagian Kiri: Pemilihan Kursi (Card KREM) */}
         <div className="flex-grow bg-[#f5f1dc] p-6 rounded-lg shadow-md text-[#2a4c44]">
           <h2 className="text-xl font-bold mb-4">
             Pilih Kursi Anda
@@ -193,29 +173,23 @@ export default function PaymentPage({
             </span>
           </div>
 
-          {/* --- PERUBAHAN 2: Grid Kursi Dibuat Dinamis (Split Layout) --- */}
-          {/* Ini akan otomatis merender semua baris (A-K) */}
           <div className="space-y-3">
             {rows.map((row) => {
-              // Ambil kursi HANYA untuk baris ini
               const seatsInRow = allSeats.filter((seat) => seat.row === row);
               const leftSeats = seatsInRow
                 .filter((seat) => seat.block === "left")
-                .sort((a, b) => b.num - a.num); // Sort 15 -> 9
+                .sort((a, b) => b.num - a.num);
               const rightSeats = seatsInRow
                 .filter((seat) => seat.block === "right")
-                .sort((a, b) => b.num - a.num); // Sort 8 -> 1
+                .sort((a, b) => b.num - a.num);
 
               return (
-                // Buat satu div 'flex' untuk setiap baris
-                // --- PERUBAHAN 3: Tambahkan space untuk jalan (aisle) ---
                 <div
                   key={row}
                   className={`flex justify-center gap-3 ${
-                    row === "E" ? "mt-8" : "" // Tambah margin-top jika baris E
+                    row === "E" ? "mt-8" : "" 
                   }`}
                 >
-                  {/* Blok Kiri */}
                   <div className="flex gap-3">
                     {leftSeats.map((seat) => (
                       <Seat
@@ -227,10 +201,8 @@ export default function PaymentPage({
                     ))}
                   </div>
 
-                  {/* Ini adalah gang vertikal (bisa di-style jika perlu) */}
                   <div className="w-10 flex-shrink-0" />
 
-                  {/* Blok Kanan */}
                   <div className="flex gap-3">
                     {rightSeats.map((seat) => (
                       <Seat
@@ -246,7 +218,6 @@ export default function PaymentPage({
             })}
           </div>
 
-          {/* Legenda */}
           <div className="flex justify-center gap-6 mt-8 pt-4 border-t border-gray-400">
             <LegendItem colorClass="bg-white border border-gray-300" text="Tersedia" />
             <LegendItem colorClass="bg-[#6a8e7f]" text="Pilihan Anda" />
@@ -254,7 +225,6 @@ export default function PaymentPage({
           </div>
         </div>
 
-        {/* Bagian Kanan: Ringkasan Pesanan (Card KREM) */}
         <div className="w-full md:w-80 lg:w-96 bg-[#f5f1dc] p-6 rounded-lg shadow-md flex-shrink-0 text-[#2a4c44]">
           <h2 className="text-xl font-bold mb-4">
             Ringkasan Pesanan

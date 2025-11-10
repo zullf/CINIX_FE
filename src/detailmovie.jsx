@@ -9,14 +9,9 @@ import {
   PlayCircle,
   Filter,
   Search,
-  Clock, // Ikon jam
+  Clock, 
 } from "lucide-react";
 
-// ===================================================================
-// KOMPONEN UNTUK HALAMAN DETAIL
-// ===================================================================
-
-// Komponen Header
 function DetailHeader({ onNavigateHome, onNavigateLogin }) {
   return (
     <header className="flex items-center justify-between px-8 py-4 bg-[#f5f1dc] shadow">
@@ -55,7 +50,6 @@ function DetailHeader({ onNavigateHome, onNavigateLogin }) {
   );
 }
 
-// Komponen untuk Chip Tanggal
 const DateChip = ({ day, date, isActive, onClick }) => (
   <button
     onClick={onClick}
@@ -70,7 +64,6 @@ const DateChip = ({ day, date, isActive, onClick }) => (
   </button>
 );
 
-// Komponen untuk Chip Kota (versi lebih kecil)
 const CityChip = ({ city, isActive, onClick }) => (
   <button
     onClick={onClick}
@@ -84,18 +77,16 @@ const CityChip = ({ city, isActive, onClick }) => (
   </button>
 );
 
-// Komponen Halaman Detail (Default Export)
 export default function DetailPage({
   movie,
   onNavigateHome,
   onNavigateLogin,
-  onNavigatePayment, // Menerima prop navigasi
+  onNavigatePayment, 
 }) {
   const [activeTab, setActiveTab] = useState("jadwal");
   const [activeDate, setActiveDate] = useState("11");
   const [activeCity, setActiveCity] = useState("JAKARTA");
 
-  // Placeholder data
   const dates = [
     { day: "SUN", date: "09" },
     { day: "MON", date: "10" },
@@ -107,7 +98,6 @@ export default function DetailPage({
 
   const cities = ["JAKARTA", "BOGOR", "DEPOK", "TANGERANG", "BEKASI"];
 
-  // Data film palsu (fallback) jika 'movie' prop tidak ada
   const displayMovie =
     movie || {
       title: "TRON ARES (2025)",
@@ -117,16 +107,13 @@ export default function DetailPage({
       duration: "2h 10m",
     };
 
-  // Data bioskop (Contoh)
   const cinemaToShow = {
     name: "AEON MALL TANJUNG BARAT XXI",
     brand: "Cinema XXI",
     times: ["12:30", "14:30", "16:40", "18:50"],
   };
 
-  // Handler saat bioskop/waktu diklik
   const handleBook = (time) => {
-    // Perbaikan untuk TypeError: Cek jika prop ada sebelum memanggil
     if (typeof onNavigatePayment === "function") {
       onNavigatePayment(displayMovie, cinemaToShow.name, time);
     } else {
@@ -146,7 +133,6 @@ export default function DetailPage({
 
       <main className="px-6 md:px-10 py-10 text-[#f5f1dc]">
         <div className="max-w-4xl mx-auto">
-          {/* --- Bagian Detail Film --- */}
           <h2 className="text-2xl font-semibold mb-6">Detail Film</h2>
           <div className="flex flex-col md:flex-row gap-8">
             <img
@@ -161,7 +147,6 @@ export default function DetailPage({
               <h1 className="text-5xl font-bold my-2">{displayMovie.title}</h1>
               <span className="text-lg">{displayMovie.genres}</span>
 
-              {/* Menampilkan Durasi */}
               {displayMovie.duration && (
                 <span className="text-lg mt-2 flex items-center gap-2">
                   <Clock size={18} />
@@ -175,8 +160,6 @@ export default function DetailPage({
               </button>
             </div>
           </div>
-
-          {/* --- Bagian Jadwal / Detail --- */}
           <div className="mt-12">
             <div className="flex gap-8 border-b-2 border-gray-500">
               <button
@@ -237,7 +220,6 @@ export default function DetailPage({
                   ))}
                 </div>
 
-                {/* Daftar Bioskop - Sekarang Dapat Diklik */}
                 <div className="bg-[#f5f1dc] rounded-xl p-4 shadow-lg">
                   <div>
                     <h3 className="text-lg font-bold text-[#2d3e50]">
@@ -247,12 +229,12 @@ export default function DetailPage({
                       {cinemaToShow.brand}
                     </div>
                   </div>
-                  {/* Daftar Waktu Tayang */}
+
                   <div className="grid grid-cols-4 gap-3 mt-4">
                     {cinemaToShow.times.map((time) => (
                       <button
                         key={time}
-                        onClick={() => handleBook(time)} // Aksi klik
+                        onClick={() => handleBook(time)} 
                         className="p-2 border border-green-700 text-green-700 font-semibold rounded-lg hover:bg-green-700 hover:text-white transition"
                       >
                         {time}

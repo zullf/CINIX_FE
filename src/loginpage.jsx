@@ -12,7 +12,6 @@ import {
   Mail,
 } from "lucide-react";
 
-// --- Header untuk halaman Login ---
 function LoginHeader({ onNavigateHome }) {
   return (
     <header className="flex items-center justify-between px-8 py-4 bg-[#f5f1dc] shadow">
@@ -44,7 +43,6 @@ function LoginHeader({ onNavigateHome }) {
   );
 }
 
-// Icon SVG Kustom
 const GoogleIcon = (props) => (
   <svg
     {...props}
@@ -88,8 +86,6 @@ const FacebookIcon = (props) => (
   </svg>
 );
 
-// Komponen Halaman Login (Default Export)
-// --- PERUBAHAN: Menambahkan prop onNavigateRegister ---
 export default function LoginPage({ onNavigateHome, onNavigateRegister }) {
   const [showPassword, setShowPassword] = useState(false);
   const backgroundImageUrl = "https://i.imgur.com/Mvn8b2b.png";
@@ -201,7 +197,6 @@ export default function LoginPage({ onNavigateHome, onNavigateRegister }) {
               </button>
             </div>
 
-            {/* --- PERUBAHAN: Mengubah <a> menjadi <button> --- */}
             <div className="text-center text-xs">
               <span className="text-gray-400">Don't have an account? </span>
               <button

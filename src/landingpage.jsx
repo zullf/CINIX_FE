@@ -14,16 +14,12 @@ import {
   Heart,
 } from "lucide-react";
 
-// Impor semua halaman/komponen
 import SearchPage from "./searchpage.jsx";
 import DetailPage from "./detailmovie.jsx";
 import LoginPage from "./loginpage.jsx";
 import SignUpPage from "./signup.jsx";
 import PaymentPage from "./payment.jsx";
 
-// ===================================================================
-// KOMPONEN HEADER UTAMA (Dipakai di Homepage)
-// ===================================================================
 function MainHeader({ onNavigateHome, onNavigateLogin, onNavigateSearch }) {
   return (
     <header className="flex items-center justify-between px-8 py-4 bg-[#f5f1dc] shadow">
@@ -47,9 +43,6 @@ function MainHeader({ onNavigateHome, onNavigateLogin, onNavigateSearch }) {
   );
 }
 
-// ===================================================================
-// KOMPONEN HOME PAGE (Carousel, dll)
-// ===================================================================
 function HomePage({
   onNavigateHome,
   onNavigateLogin,
@@ -87,7 +80,6 @@ function HomePage({
     },
   ];
 
-  // Logika Carousel (Triple List)
   const moviesWithClones = [
     ...originalMovies,
     ...originalMovies,
@@ -96,7 +88,7 @@ function HomePage({
   const initialSlide = originalMovies.length;
   const [currentSlide, setCurrentSlide] = useState(initialSlide);
   const [transitionEnabled, setTransitionEnabled] = useState(true);
-  const slideDistance = 21.5; // w-80 (20rem) + gap-6 (1.5rem)
+  const slideDistance = 21.5;
 
   const nextSlide = () => {
     setTransitionEnabled(true);
@@ -132,7 +124,6 @@ function HomePage({
         onNavigateSearch={onNavigateSearch}
       />
 
-      {/* Banner */}
       <div className="bg-[#2d3e50] text-[#fff9e6] py-10 flex justify-center items-center gap-4 md:gap-8 relative">
         <Glasses size={64} className="text-orange-400 -rotate-12" />
         <span
@@ -144,13 +135,11 @@ function HomePage({
         <Film size={64} className="text-yellow-300 rotate-12" />
       </div>
 
-      {/* Movie Section */}
       <section className="py-10 px-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-[#fff9e6]">
             Sedang tayang di cinema!
           </h2>
-          {/* --- FIX: Menambahkan onClick ke ikon Search --- */}
           <Search
             size={24}
             className="text-[#fff9e6] cursor-pointer"
@@ -183,7 +172,6 @@ function HomePage({
           </div>
         </div>
 
-        {/* Kontrol (Tombol & Dots) */}
         <div className="flex justify-between items-center mt-6 text-[#fff9e6]">
           <button
             onClick={prevSlide}
@@ -213,16 +201,12 @@ function HomePage({
   );
 }
 
-// ===================================================================
-// KOMPONEN 'ROUTER' UTAMA
-// ===================================================================
 export default function Cinix() {
   const [currentPage, setCurrentPage] = useState("home");
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [selectedCinema, setSelectedCinema] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
 
-  // Fungsi Navigasi
   const handleNavigateHome = () => setCurrentPage("home");
   const handleNavigateSearch = () => setCurrentPage("search");
   const handleNavigateLogin = () => setCurrentPage("login");
@@ -240,7 +224,6 @@ export default function Cinix() {
     setCurrentPage("payment");
   };
 
-  // Kumpulan prop navigasi untuk diteruskan ke setiap halaman
   const navProps = {
     onNavigateHome: handleNavigateHome,
     onNavigateSearch: handleNavigateSearch,
@@ -250,7 +233,6 @@ export default function Cinix() {
     onNavigatePayment: handleNavigatePayment,
   };
 
-  // Render halaman berdasarkan state 'currentPage'
   switch (currentPage) {
     case "search":
       return <SearchPage {...navProps} />;

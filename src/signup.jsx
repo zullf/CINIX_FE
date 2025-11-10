@@ -12,8 +12,6 @@ import {
   Mail,
 } from "lucide-react";
 
-// --- Header untuk halaman Sign Up ---
-// (Identik dengan header login)
 function SignUpHeader({ onNavigateHome }) {
   return (
     <header className="flex items-center justify-between px-8 py-4 bg-[#f5f1dc] shadow">
@@ -40,13 +38,11 @@ function SignUpHeader({ onNavigateHome }) {
           <Heart />
           <span>Wishlist</span>
         </button>
-        {/* Tombol Profile tidak ada di sini */}
       </div>
     </header>
   );
 }
 
-// Icon SVG Kustom (Diperlukan untuk tombol sosial)
 const GoogleIcon = (props) => (
   <svg
     {...props}
@@ -90,17 +86,14 @@ const FacebookIcon = (props) => (
   </svg>
 );
 
-// Komponen Halaman Sign Up (Default Export)
 export default function SignUpPage({ onNavigateHome, onNavigateLogin }) {
   const [showPassword, setShowPassword] = useState(false);
   const backgroundImageUrl = "https://i.imgur.com/Mvn8b2b.png";
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* 1. Header Solid */}
       <SignUpHeader onNavigateHome={onNavigateHome} />
 
-      {/* 2. Main Body dengan Background Image */}
       <main
         className="flex-grow w-full flex items-center justify-center p-4"
         style={{
@@ -109,12 +102,10 @@ export default function SignUpPage({ onNavigateHome, onNavigateLogin }) {
           backgroundPosition: "center",
         }}
       >
-        {/* Form Card */}
         <div className="w-full max-w-md bg-gray-900/60 backdrop-blur-lg rounded-2xl shadow-2xl p-8 text-white">
           <h2 className="text-3xl font-bold text-center mb-8">Sign Up</h2>
 
           <form onSubmit={(e) => e.preventDefault()}>
-            {/* Email Input */}
             <div className="relative mb-6">
               <label
                 htmlFor="email"
@@ -133,8 +124,6 @@ export default function SignUpPage({ onNavigateHome, onNavigateLogin }) {
                 size={20}
               />
             </div>
-
-            {/* Password Input */}
             <div className="relative mb-6">
               <label
                 htmlFor="password"
@@ -160,8 +149,6 @@ export default function SignUpPage({ onNavigateHome, onNavigateLogin }) {
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
-
-            {/* Tombol Create Account */}
             <button
               type="submit"
               className="w-full bg-[#2a4c44] hover:bg-[#3a6a5e] text-white font-bold py-3 rounded-lg transition-colors mb-6"
@@ -169,7 +156,6 @@ export default function SignUpPage({ onNavigateHome, onNavigateLogin }) {
               Create Account
             </button>
 
-            {/* Divider */}
             <div className="flex items-center my-6">
               <div className="flex-grow border-t border-gray-600"></div>
               <span className="mx-4 text-xs text-gray-400">
@@ -178,7 +164,6 @@ export default function SignUpPage({ onNavigateHome, onNavigateLogin }) {
               <div className="flex-grow border-t border-gray-600"></div>
             </div>
 
-            {/* Social Logins */}
             <div className="flex justify-center gap-4 mb-6">
               <button
                 type="button"
@@ -196,7 +181,6 @@ export default function SignUpPage({ onNavigateHome, onNavigateLogin }) {
               </button>
             </div>
 
-            {/* Link Login */}
             <div className="text-center text-xs">
               <span className="text-gray-400">Already have an account? </span>
               <button
