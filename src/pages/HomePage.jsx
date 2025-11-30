@@ -107,7 +107,7 @@ export default function HomePage({ onNavigateHome, onNavigateLogin, onNavigateSe
                             <div className="p-5 relative z-20 bg-gradient-to-t from-[#0f172a] via-[#1a2c38] to-transparent -mt-10 pt-12 text-center">
                               <h3 className="font-black text-xl text-white truncate px-1 mb-2 group-hover:text-amber-400 transition-colors duration-300">{movie.title}</h3>
                               <p className="text-sm text-gray-300 font-medium mb-3 px-4 truncate">{movie.genre}</p>
-                              <div className="flex justify-center items-center gap-4 text-xs text-gray-400 font-semibold border-t border-white/10 pt-3 mx-4"><div className="flex items-center gap-1.5"><Clock size={14} className="text-amber-500"/><span>{movie.duration} Jam</span></div><div className="flex items-center gap-1.5"><Calendar size={14} className="text-amber-500"/><span>Tayang</span></div></div>
+                              <div className="flex justify-center items-center gap-4 text-xs text-gray-400 font-semibold border-t border-white/10 pt-3 mx-4"><div className="flex items-center gap-1.5"><Clock size={14} className="text-amber-500"/><span>{movie.duration} Menit</span></div><div className="flex items-center gap-1.5"><Calendar size={14} className="text-amber-500"/><span>Tayang</span></div></div>
                             </div>
                         </div>
                       </div>

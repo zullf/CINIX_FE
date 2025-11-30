@@ -13,6 +13,7 @@ import PaymentPage from "./pages/PaymentPage.jsx";
 import MyTicketsPage from "./pages/MyTicketsPage";
 import WishlistPage from "./pages/WishlistPage";
 import CinemaDetailPage from "./pages/CinemaDetailPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
 
 const DetailWrapper = ({ baseProps }) => {
   const location = useLocation();
@@ -101,6 +102,7 @@ return (
         <Route path="/mytickets" element={<MyTicketsPage user={currentUser} />} />
         <Route path="/wishlist" element={<WishlistPage {...navProps} />} />
         <Route path="/cinema/:id" element={<CinemaDetailPage {...navProps} />} />
+        <Route path="/admin" element={<AdminDashboardPage />} />
       </Routes>
 
       {showLogoutModal && (
