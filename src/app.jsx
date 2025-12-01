@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { BrowserRouter, Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useLocation, Navigate, useParams } from "react-router-dom";
 import { X, AlertCircle } from "lucide-react"; 
 
 import HomePage from "./pages/HomePage"; 
@@ -13,16 +13,17 @@ import PaymentPage from "./pages/PaymentPage.jsx";
 import MyTicketsPage from "./pages/MyTicketsPage";
 import WishlistPage from "./pages/WishlistPage";
 import CinemaDetailPage from "./pages/CinemaDetailPage";
-import AdminDashboardPage from "./pages/AdminDashboardPage";
 
 const DetailWrapper = ({ baseProps }) => {
+  const { id_movie } = useParams();
   const location = useLocation();
   const movie = location.state?.movie; 
   if (!movie) return <Navigate to="/" replace />;
-  return <DetailPage {...baseProps} movie={movie} />;
+  return <DetailPage {...baseProps} movie={movie} movieId={id_movie}/>;
 };
 
 const BookingWrapper = ({ baseProps }) => {
+  const { id_movie } = useParams();
   const location = useLocation();
   const { movie, cinema, time } = location.state || {};
   
@@ -34,7 +35,7 @@ const PaymentWrapper = ({ baseProps }) => {
   const location = useLocation();
   const { movie, cinema, time, seats, quantity } = location.state || {};
   
- if (!movie) return <Navigate to="/" replace />;
+  if (!movie) return <Navigate to="/" replace />;
   return <PaymentPage {...baseProps} movie={movie} cinema={cinema} time={time} seats={seats || []} quantity={quantity || 0} user={baseProps.user} />;
 };
 
@@ -72,7 +73,7 @@ function CinixRoutes() {
     const handleLogoutClick = () => setShowLogoutModal(true);
     const cancelLogout = () => setShowLogoutModal(false);
 
- const navProps = {
+  const navProps = {
     onNavigateHome: () => navigate('/'),
     onNavigateSearch: () => navigate('/search'),
     onNavigateLogin: () => navigate('/login'),
@@ -80,7 +81,7 @@ function CinixRoutes() {
     onNavigateForgotPassword: () => navigate('/forgot-password'),
     onNavigateTickets: () => navigate('/mytickets'),
     onNavigateWishlist: () => navigate('/wishlist'),
-    onNavigateDetail: (movie) => navigate('/detail', { state: { movie } }),
+    onNavigateDetail: (movie) => navigate(`/detail/${movie.id_movie}`, { state: { movie } }),
     onNavigateBooking: (movie, cinema, time) => {navigate('/booking', { state: { movie, cinema, time } }); },
     onNavigatePayment: (movie, cinema, seats, quantity) => navigate('/payment', { state: { movie, cinema, time, seats, quantity } }),
     user: currentUser,
@@ -96,13 +97,12 @@ return (
         <Route path="/login" element={<LoginPage {...navProps} />} />
         <Route path="/register" element={<SignUpPage {...navProps} />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage {...navProps} />} />
-        <Route path="/detail" element={<DetailWrapper baseProps={navProps} />} />
+        <Route path="/detail/:id_movie" element={<DetailWrapper baseProps={navProps} />} />
         <Route path="/booking" element={<BookingWrapper baseProps={navProps} />} />
         <Route path="/payment" element={<PaymentWrapper baseProps={navProps} />} />
         <Route path="/mytickets" element={<MyTicketsPage user={currentUser} />} />
         <Route path="/wishlist" element={<WishlistPage {...navProps} />} />
         <Route path="/cinema/:id" element={<CinemaDetailPage {...navProps} />} />
-        <Route path="/admin" element={<AdminDashboardPage />} />
       </Routes>
 
       {showLogoutModal && (

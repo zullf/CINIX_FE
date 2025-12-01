@@ -3,13 +3,23 @@ import axios from "axios";
 import { Search, Star, PlayCircle, Clock, Calendar, ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation, EffectFade } from 'swiper/modules';
+
+// Import CSS Swiper wajib
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/effect-fade';
+
+// Import Component Header yang udah dipisah
 import MainHeader from "../components/MainHeader";
 
 const API_BASE_URL = "https://cinix-be.vercel.app";
+
+const formatDuration = (minutes) => {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${h}h ${m}m`;
+};
 
 export default function HomePage({ onNavigateHome, onNavigateLogin, onNavigateSearch, onNavigateDetail, onNavigateTickets, onNavigateWishlist, user, onLogoutClick }) {
   const [movies, setMovies] = useState([]);
@@ -36,7 +46,7 @@ export default function HomePage({ onNavigateHome, onNavigateLogin, onNavigateSe
         let url = `${API_BASE_URL}/recommendation`;
         const config = {};
         if (user && user.id) {
-           url = `${API_BASE_URL}/recommendations/${user.id}`;
+           url = `${API_BASE_URL}/recommendation/${user.id}`;
            config.withCredentials = true; 
         }
         const res = await axios.get(url, config);
@@ -98,12 +108,12 @@ export default function HomePage({ onNavigateHome, onNavigateLogin, onNavigateSe
                             <div className="h-[420px] relative overflow-hidden">
                               <div className="absolute inset-0 bg-black/0 transition-all duration-500 group-hover:bg-black/20 z-10"></div>
                               <img src={movie.poster_url} alt={movie.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onError={(e) => {e.target.onerror = null; e.target.src = "https://via.placeholder.com/320x450?text=No+Image";}} />
-                              <div className="absolute top-4 right-4 z-20 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-xl text-amber-400 font-extrabold flex items-center gap-1.5 border border-amber-500/30 shadow-lg"><Star size={16} fill="#fbbf24" /> {movie.rating || "N/A"}</div>
+                              <div className="absolute top-4 right-4 z-20 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-xl text-amber-400 font-extrabold flex items-center gap-1.5 border border-amber-500/30 shadow-lg"><Star size={16} fill="#fbbf24" /> {movie.rating + "/10" || "N/A"}</div>
                             </div>
                             <div className="p-5 relative z-20 bg-gradient-to-t from-[#0f172a] via-[#1a2c38] to-transparent -mt-10 pt-12 text-center">
                               <h3 className="font-black text-xl text-white truncate px-1 mb-2 group-hover:text-amber-400 transition-colors duration-300">{movie.title}</h3>
                               <p className="text-sm text-gray-300 font-medium mb-3 px-4 truncate">{movie.genre}</p>
-                              <div className="flex justify-center items-center gap-4 text-xs text-gray-400 font-semibold border-t border-white/10 pt-3 mx-4"><div className="flex items-center gap-1.5"><Clock size={14} className="text-amber-500"/><span>{movie.duration} Menit</span></div><div className="flex items-center gap-1.5"><Calendar size={14} className="text-amber-500"/><span>Tayang</span></div></div>
+                              <div className="flex justify-center items-center gap-4 text-xs text-gray-400 font-semibold border-t border-white/10 pt-3 mx-4"><div className="flex items-center gap-1.5"><Clock size={14} className="text-amber-500"/><span>{formatDuration(movie.duration)}</span></div><div className="flex items-center gap-1.5"><Calendar size={14} className="text-amber-500"/><span>Tayang</span></div></div>
                             </div>
                         </div>
                       </div>
