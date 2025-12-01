@@ -8,7 +8,6 @@ export default function DetailHeader({ onNavigateHome, onNavigateLogin }) {
   return (
     <header className="flex items-center justify-between px-8 py-4 bg-[#f5f1dc] shadow sticky top-0 z-50">
       <div className="flex items-center gap-4">
-        {/* Logo bisa diklik buat balik ke Home */}
         <div className="text-3xl font-bold text-[#2a4c44] cursor-pointer" onClick={() => navigate('/')}>
             CINIX
         </div>

@@ -13,8 +13,6 @@ const formatIDR = (value) => {
     maximumFractionDigits: 0
   }).format(value);
 };
-
-// --- COMPONENTS KECIL ---
 const PaymentHeader = ({ onBack }) => (
   <div className="bg-white shadow-sm px-6 py-4 flex items-center gap-4 sticky top-0 z-50">
     <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full transition"><ArrowLeft className="text-[#2a4c44]" /></button>
@@ -77,8 +75,6 @@ const PriceSummary = ({ pricePerTicket, quantity, adminFee, totalAmount }) => (
     </div>
   </div>
 );
-
-// --- MAIN PAGE ---
 export default function PaymentPage({ onNavigateHome, movie, cinema, time, user, quantity, seats }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -87,9 +83,6 @@ export default function PaymentPage({ onNavigateHome, movie, cinema, time, user,
   const pricePerTicket = 50000;
   const adminFee = 3000;
   const totalAmount = (pricePerTicket * (quantity || 1)) + adminFee;
-
-  // State yang dibawa dari BookingPage (seharusnya ada schedule_id di sini)
-  // seats harusnya array ID, bukan label "A1". Tapi kita sesuaikan nanti.
 
   const methods = [
     { id: "qris", name: "QRIS", icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Commons_QR_code.png/600px-Commons_QR_code.png" },
@@ -100,7 +93,6 @@ export default function PaymentPage({ onNavigateHome, movie, cinema, time, user,
   const handlePayment = async () => {
     setLoading(true);
     try {
-      // 1. AMBIL TOKEN (WAJIB)
       const token = localStorage.getItem("token");
       
       if (!token) {
@@ -108,45 +100,28 @@ export default function PaymentPage({ onNavigateHome, movie, cinema, time, user,
         navigate('/login');
         return;
       }
-
-      // 2. SIAPKAN PAYLOAD (SESUAI REQUEST BACKEND)
-      // Backend minta: { schedule_id, seats, amount }
       
       const payload = {
-        // PERHATIKAN: schedule_id harusnya didapat dari database (Booking Page).
-        // Kalau error 404 "Schedule tidak ditemukan", minta ID valid ke Backend Dev.
-        schedule_id: "02c0037c-3b6e-40f0-939a-b6ac42cd086e", // CONTOH ID VALID DARI LOG BACKEND KAMU
-        
-        // Backend minta array ID kursi, bukan nama. 
-        // Kalau error 400, berarti Backend butuh ID UUID kursi, bukan "A1".
-        // Untuk sekarang kita kirim array string dulu.
+        schedule_id: "02c0037c-3b6e-40f0-939a-b6ac42cd086e",
         seats: seats, 
-        
-        amount: totalAmount // Backend minta 'amount', bukan 'total_amount'
+        amount: totalAmount
       };
 
       console.log("PAYLOAD KE BE:", payload);
-
-      // 3. TEMBAK API (HYBRID: COOKIE + HEADER)
       const response = await axios.post(API_BASE_URL, payload, {
         withCredentials: true,
         headers: { 'Content-Type': 'application/json' }
       });
       
       console.log("RESPONSE SUKSES:", response.data);
-      
-      // 4. AMBIL URL MIDTRANS
       const responseData = response.data;
       const midtransUrl = responseData.snap?.redirect_url || 
                           responseData.payment?.midtrans_response?.redirect_url;
 
       if (midtransUrl) {
-          // SIMPAN HISTORY FRONTEND
           if (user && user.id) {
               const storageKey = `tickets_${user.id}`;
               const existingTickets = JSON.parse(localStorage.getItem(storageKey) || "[]");
-              
-              // Simpan data lengkap buat tampilan UI MyTickets
               const newTicketUI = {
                   id: responseData.booking?.id_booking || Date.now(), 
                   movie_title: movie.title,
@@ -163,8 +138,6 @@ export default function PaymentPage({ onNavigateHome, movie, cinema, time, user,
               const updatedTickets = [newTicketUI, ...existingTickets]; 
               localStorage.setItem(storageKey, JSON.stringify(updatedTickets));
           }
-
-          // REDIRECT
           window.location.href = midtransUrl; 
       } else {
           alert("Gagal mendapatkan link pembayaran.");
@@ -174,13 +147,11 @@ export default function PaymentPage({ onNavigateHome, movie, cinema, time, user,
       console.error("ERROR PAYMENT:", error);
       
       if (error.response) {
-          // ERROR 401 = MASALAH TOKEN
           if (error.response.status === 401) {
               alert("Sesi login berakhir. Backend menolak token Anda. Silakan Login Ulang.");
               localStorage.removeItem("token");
               navigate('/login');
           } 
-          // ERROR 400/404/500 = MASALAH DATA
           else {
               const msg = error.response.data?.message || "Gagal memproses transaksi.";
               alert(`Gagal: ${msg}`);
@@ -199,7 +170,6 @@ export default function PaymentPage({ onNavigateHome, movie, cinema, time, user,
     <div className="min-h-screen bg-[#f5f1dc] font-sans pb-20 relative">
       <PaymentHeader onBack={() => navigate(-1)} />
 
-      {/* Loading Overlay */}
       {loading && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-white rounded-3xl p-8 flex flex-col items-center">

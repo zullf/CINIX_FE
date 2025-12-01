@@ -1,12 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
-
-// --- IMPORT KOMPONEN REUSABLE ---
 import AuthHeader from "../components/AuthHeader";
 import FormInput from "../components/FormInput";
 
-// --- SOCIAL ICONS (Bisa dipisah jadi component sendiri, tapi di sini oke) ---
 const GoogleIcon = (props) => (
   <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" /><path fill="#FF3D00" d="M6.306,14.691c2.661-5.223,7.85-8.64,13.694-8.64c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C30.046,0.053,25.268,0,20,0C8.955,0,0,8.955,0,20s8.955,20,20,20c3.059,0,5.842-1.154,7.961-3.039l5.657-5.657C30.046,33.947,25.268,36,20,36c-6.627,0-12-5.373-12-12c0-1.649,0.329-3.204,0.925-4.664L6.306,14.691z" /><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-6.19C29.211,35.637,26.714,36,24,36c-5.202,0-9.619-3.357-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" /><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" /></svg>
 );
@@ -78,7 +75,6 @@ export default function LoginPage({ onNavigateRegister, onNavigateForgotPassword
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* 1. Header diganti jadi AuthHeader */}
       <AuthHeader />
 
       <main
@@ -91,7 +87,6 @@ export default function LoginPage({ onNavigateRegister, onNavigateForgotPassword
       >
         <div className="w-full max-w-md bg-gray-900/60 backdrop-blur-lg rounded-2xl shadow-2xl p-8 text-white relative overflow-hidden">
           
-          {/* OVERLAY SUKSES */}
           {loginSuccess && (
             <div className="absolute inset-0 z-50 bg-[#2a4c44] flex flex-col items-center justify-center animate-in fade-in duration-300">
               <div className="animate-bounce mb-4 text-6xl">✅</div>
@@ -113,7 +108,6 @@ export default function LoginPage({ onNavigateRegister, onNavigateForgotPassword
           )}
 
           <form onSubmit={handleLogin}>
-            {/* 2. Input Email pake FormInput */}
             <FormInput 
                 id="email" 
                 type="email" 
@@ -124,7 +118,6 @@ export default function LoginPage({ onNavigateRegister, onNavigateForgotPassword
                 icon={Mail}
             />
 
-            {/* 3. Input Password pake FormInput + Toggle Eye */}
             <FormInput 
                 id="password" 
                 type={showPassword ? "text" : "password"} 
@@ -142,7 +135,6 @@ export default function LoginPage({ onNavigateRegister, onNavigateForgotPassword
                 }
             />
 
-            {/* Baris Remember Me & Forgot Password */}
             <div className="flex justify-between items-center text-xs mb-6 text-gray-300">
               <div className="flex items-center gap-2">
                 <input type="checkbox" id="remember" className="w-4 h-4 rounded text-amber-500 bg-gray-700 border-gray-600 focus:ring-amber-500"/>

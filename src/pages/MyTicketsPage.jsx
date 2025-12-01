@@ -7,20 +7,16 @@ export default function MyTicketsPage({ user }) {
   const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
 
-  // Load Tiket Berdasarkan User ID
   useEffect(() => {
     if (user && user.id) {
-        // 1. CARI TIKET PUNYA USER INI SAJA
         const storageKey = `tickets_${user.id}`;
         const savedTickets = JSON.parse(localStorage.getItem(storageKey) || "[]");
         setTickets(savedTickets);
     } else {
-        // Kalau user belum login/logout, kosongkan list
         setTickets([]);
     }
   }, [user]); 
 
-  // Fungsi Hapus History
   const clearHistory = () => {
       if(user && user.id && confirm("Hapus semua riwayat pesanan?")) {
           const storageKey = `tickets_${user.id}`;
@@ -45,12 +41,10 @@ export default function MyTicketsPage({ user }) {
             )}
         </div>
 
-        {/* LIST TIKET */}
         <div className="space-y-6">
             {tickets.length > 0 ? (
                 tickets.map((ticket) => (
                     <div key={ticket.id} className="bg-white rounded-3xl overflow-hidden shadow-xl flex flex-col md:flex-row relative group hover:-translate-y-1 transition-transform duration-300 animate-in slide-in-from-bottom-2">
-                        {/* Bagian Kiri: Poster */}
                         <div className="w-full md:w-40 h-48 md:h-auto relative bg-gray-200 shrink-0">
                              <img 
                                 src={ticket.movie_poster} 
@@ -63,11 +57,9 @@ export default function MyTicketsPage({ user }) {
                              </div>
                         </div>
 
-                        {/* Bagian Kanan: Detail */}
                         <div className="flex-1 p-6 flex flex-col justify-between relative overflow-hidden">
-                             {/* Pattern Background Tipis */}
                              <div className="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(circle_at_1px_1px,#2a4c44_1px,transparent_0)] bg-[length:10px_10px]"></div>
-                             
+
                              <div className="relative z-10">
                                  <h2 className="text-2xl font-black text-[#2a4c44] mb-2 leading-tight">{ticket.movie_title}</h2>
                                  <div className="flex flex-col gap-2 text-sm text-gray-600 font-medium">
@@ -99,7 +91,6 @@ export default function MyTicketsPage({ user }) {
                              </div>
                         </div>
 
-                        {/* Dekorasi Bolongan Tiket */}
                         <div className="absolute top-1/2 -left-3 w-6 h-6 bg-[#6a8e7f] rounded-full z-20 hidden md:block"></div>
                     </div>
                 ))

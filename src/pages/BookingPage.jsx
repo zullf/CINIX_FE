@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { Home, User, Ticket, Heart, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-// --- COMPONENTS KECIL ---
-
 function BookingHeader({ onNavigateHome, onNavigateLogin, movieTitle, cinemaName, onBack }) {
   return (
     <header className="flex items-center justify-between px-6 md:px-8 py-4 bg-[#f5f1dc] shadow sticky top-0 z-50">
@@ -51,23 +49,19 @@ const LegendItem = ({ colorClass, text }) => (
   </div>
 );
 
-// --- LOGIC KURSI (Tetap sama, cuma dirapikan) ---
 const rows = ["K", "J", "I", "H", "G", "F", "E", "D", "C", "B", "A"]; 
 const leftSeatNumbers = [8, 7, 6, 5];
-const centerSeatNumbers = [4, 3, 2, 1]; // Saya bagi 2 blok biar kayak bioskop beneran
+const centerSeatNumbers = [4, 3, 2, 1]; 
 
 const createSeats = () => {
   const seats = [];
   rows.forEach((row) => {
-    // Blok Kiri
     [8,7,6,5].forEach(num => seats.push({ id: `${row}${num}`, row, status: Math.random() < 0.1 ? 'taken' : 'available', block: 'left' }));
-    // Blok Kanan
     [4,3,2,1].forEach(num => seats.push({ id: `${row}${num}`, row, status: Math.random() < 0.1 ? 'taken' : 'available', block: 'right' }));
   });
   return seats;
 };
 
-// --- MAIN PAGE ---
 export default function BookingPage({ movie, cinema, time, onNavigateHome, onNavigateLogin }) {
   const navigate = useNavigate();
   const [allSeats] = useState(createSeats());
@@ -75,7 +69,6 @@ export default function BookingPage({ movie, cinema, time, onNavigateHome, onNav
   
   const ticketPrice = 50000;
 
-  // Fallback Data agar tidak error saat refresh
   const displayMovie = movie || {
     title: "TRON ARES (2025)",
     poster_url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8tq8lygfqv4hEIDsAjS88Rdh-z99CusKQyg&s",
@@ -99,14 +92,13 @@ export default function BookingPage({ movie, cinema, time, onNavigateHome, onNav
 
   const totalPrice = selectedSeats.length * ticketPrice;
   
-  // --- FUNGSI NAVIGASI KE PAYMENT ---
   const handleProceedToPayment = () => {
      navigate('/payment', {
         state: {
             movie: displayMovie,
             cinema: displayCinema,
             time: displayTime,
-            seats: selectedSeats, // Kirim data kursi yg dipilih
+            seats: selectedSeats, 
             totalPrice: totalPrice,
             quantity: selectedSeats.length
         }
@@ -125,30 +117,24 @@ export default function BookingPage({ movie, cinema, time, onNavigateHome, onNav
 
       <div className="flex-grow flex flex-col lg:flex-row p-4 md:p-6 gap-6 max-w-7xl mx-auto w-full">
         
-        {/* SEAT SELECTION AREA */}
         <div className="flex-grow bg-[#f5f1dc] p-4 md:p-8 rounded-3xl shadow-xl text-[#2a4c44] flex flex-col items-center">
           <h2 className="text-xl font-black mb-6 self-start">Pilih Kursi</h2>
 
-          {/* SCREEN */}
           <div className="w-full max-w-2xl mb-12 relative">
              <div className="h-2 bg-gray-400 rounded-full w-full shadow-[0_10px_30px_rgba(0,0,0,0.2)]"></div>
              <p className="text-center text-xs font-bold text-gray-400 mt-4 tracking-[0.3em]">LAYAR BIOSKOP</p>
-             {/* Efek Cahaya Layar */}
              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-20 bg-gradient-to-b from-white/20 to-transparent blur-xl pointer-events-none"></div>
           </div>
 
-          {/* SEATS GRID */}
           <div className="flex flex-col gap-2 md:gap-3 overflow-x-auto pb-4 w-full items-center">
             {rows.map((row) => (
               <div key={row} className="flex gap-4 md:gap-8 items-center">
-                {/* Blok Kiri */}
                 <div className="flex gap-1 md:gap-2">
                    {[8,7,6,5].map(num => {
                       const id = `${row}${num}`;
                       return <Seat key={id} id={id} status={getSeatStatus(id)} onClick={toggleSeat} />;
                    })}
                 </div>
-                {/* Blok Kanan */}
                 <div className="flex gap-1 md:gap-2">
                    {[4,3,2,1].map(num => {
                       const id = `${row}${num}`;
@@ -159,7 +145,6 @@ export default function BookingPage({ movie, cinema, time, onNavigateHome, onNav
             ))}
           </div>
 
-          {/* LEGEND */}
           <div className="flex flex-wrap justify-center gap-4 md:gap-8 mt-10 pt-6 border-t border-[#2a4c44]/10 w-full">
             <LegendItem colorClass="bg-white border border-gray-300" text="Tersedia" />
             <LegendItem colorClass="bg-[#6a8e7f]" text="Dipilih" />
@@ -167,7 +152,6 @@ export default function BookingPage({ movie, cinema, time, onNavigateHome, onNav
           </div>
         </div>
 
-        {/* ORDER SUMMARY (SIDEBAR) */}
         <div className="w-full lg:w-96 flex-shrink-0">
             <div className="bg-white p-6 rounded-3xl shadow-xl sticky top-24">
                 <h2 className="text-xl font-black text-[#2a4c44] mb-6">Ringkasan Pesanan</h2>

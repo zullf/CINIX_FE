@@ -1,23 +1,18 @@
 import React from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { MapPin, Star, ArrowLeft, Calendar, Clock } from "lucide-react";
-import DetailHeader from "../components/detMovieHeader"; // Reuse header
+import DetailHeader from "../components/detMovieHeader"; 
 
 export default function CinemaDetailPage({ onNavigateHome, onNavigateLogin, onNavigateBooking }) {
-  const { id } = useParams(); // Mengambil ID dari URL (misal: 1)
+  const { id } = useParams(); 
   const location = useLocation();
   const navigate = useNavigate();
-  
-  // Ambil data bioskop yang dikirim dari halaman Search
-  // Kalau user refresh halaman, state mungkin hilang, jadi kita kasih fallback (data kosong/dummy)
   const cinema = location.state?.cinemaData || { 
       name: "Unknown Cinema", 
       brand: "XXI", 
       city: "Unknown" 
   };
 
-  // --- MOCKUP DATA FILM YANG TAYANG DI BIOSKOP INI ---
-  // (Nanti ini diganti fetch API berdasarkan ID Bioskop)
   const moviesPlaying = [
     {
        id: 101,
@@ -45,17 +40,15 @@ export default function CinemaDetailPage({ onNavigateHome, onNavigateLogin, onNa
     }
   ];
 
-  // Fungsi kalau pilih jam tayang (Langsung ke Booking)
   const handleSelectTime = (movie, time) => {
-      // Kita arahkan ke Booking Page, seolah-olah user klik dari detail movie
       navigate('/booking', {
           state: {
               movie: { 
                   title: movie.title, 
-                  img: movie.poster_url, // Sesuaikan nama prop
+                  img: movie.poster_url, 
                   poster_url: movie.poster_url 
               },
-              cinema: cinema.name, // Nama bioskop dari halaman ini
+              cinema: cinema.name,
               time: time
           }
       });
@@ -67,7 +60,6 @@ export default function CinemaDetailPage({ onNavigateHome, onNavigateLogin, onNa
 
       <main className="max-w-5xl mx-auto px-6 py-8">
         
-        {/* HEADER BIOSKOP */}
         <div className="mb-8 animate-in slide-in-from-bottom-4 duration-500">
             <button 
                 onClick={() => navigate(-1)} 
@@ -96,7 +88,6 @@ export default function CinemaDetailPage({ onNavigateHome, onNavigateLogin, onNa
                     </p>
                 </div>
                 
-                {/* Info Fasilitas (Hiasan) */}
                 <div className="flex gap-4">
                     <div className="text-center bg-white p-3 rounded-xl border border-[#2a4c44]/10 shadow-sm">
                         <div className="text-2xl font-black text-[#2a4c44]">4</div>
@@ -110,7 +101,6 @@ export default function CinemaDetailPage({ onNavigateHome, onNavigateLogin, onNa
             </div>
         </div>
 
-        {/* LIST FILM YANG TAYANG */}
         <h2 className="text-2xl font-bold text-[#fff9e6] mb-6 flex items-center gap-2">
             <Calendar size={24} /> Sedang Tayang Disini
         </h2>
@@ -119,7 +109,6 @@ export default function CinemaDetailPage({ onNavigateHome, onNavigateLogin, onNa
             {moviesPlaying.map((movie) => (
                 <div key={movie.id} className="bg-white rounded-2xl overflow-hidden shadow-lg group hover:-translate-y-1 transition-all duration-300">
                     <div className="flex h-48">
-                        {/* Poster Kecil */}
                         <div className="w-32 h-full shrink-0">
                             <img 
                                 src={movie.poster_url} 
@@ -127,7 +116,6 @@ export default function CinemaDetailPage({ onNavigateHome, onNavigateLogin, onNa
                                 className="w-full h-full object-cover"
                             />
                         </div>
-                        {/* Info Film */}
                         <div className="p-4 flex flex-col justify-between flex-1">
                             <div>
                                 <h3 className="text-lg font-black text-[#2a4c44] line-clamp-2 leading-tight mb-1">
@@ -141,7 +129,6 @@ export default function CinemaDetailPage({ onNavigateHome, onNavigateLogin, onNa
                         </div>
                     </div>
                     
-                    {/* Jadwal Tayang */}
                     <div className="p-4 bg-gray-50 border-t border-gray-100">
                         <div className="flex items-center gap-2 mb-3 text-xs font-bold text-gray-400 uppercase">
                             <Clock size={12} /> Jadwal Hari Ini

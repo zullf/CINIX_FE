@@ -1,12 +1,8 @@
 import React, { useState } from "react";
-// PASTIKAN SEMUA ICON INI DI-IMPORT (Termasuk Heart)
 import { Clock, Filter, Search, PlayCircle, Lock, X, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-// Pastikan path ini benar
 import DetailHeader from "../components/detMovieHeader";
 
-// --- HELPER COMPONENTS (DateChip & CityChip) ---
 const DateChip = ({ day, date, isActive, onClick }) => (
   <button
     onClick={onClick}
@@ -34,7 +30,6 @@ const CityChip = ({ city, isActive, onClick }) => (
   </button>
 );
 
-// --- MAIN COMPONENT ---
 export default function DetailPage({
   movie,
   onNavigateHome,
@@ -47,13 +42,10 @@ export default function DetailPage({
   const [activeDate, setActiveDate] = useState("11");
   const [activeCity, setActiveCity] = useState("JAKARTA");
   
-  // STATE MODAL POPUP
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // STATE BARU: WISHLIST (Lokal dulu)
   const [isWishlisted, setIsWishlisted] = useState(false);
 
-  // --- DATA MOCKUP ---
   const dates = [
     { day: "SUN", date: "09" }, { day: "MON", date: "10" },
     { day: "TUE", date: "11" }, { day: "WED", date: "12" },
@@ -61,7 +53,6 @@ export default function DetailPage({
   ];
   const cities = ["JAKARTA", "BOGOR", "DEPOK", "TANGERANG", "BEKASI"];
   
-  // Fallback data
   const displayMovie = movie || {
     title: "TRON ARES (2025)",
     img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8tq8lygfqv4hEIDsAjS88Rdh-z99CusKQyg&s",
@@ -76,7 +67,6 @@ export default function DetailPage({
     times: ["12:30", "14:30", "16:40", "18:50"],
   };
 
-  // --- LOGIC HANDLERS ---
   const handleBook = (time) => {
     if (!user) {
       setShowLoginModal(true);
@@ -90,7 +80,6 @@ export default function DetailPage({
   };
 
   const handleToggleWishlist = () => {
-    // Nanti disini bisa ditambah logika simpan ke LocalStorage/Backend
     setIsWishlisted(!isWishlisted);
   };
 
@@ -100,8 +89,6 @@ export default function DetailPage({
         onNavigateHome={onNavigateHome}
         onNavigateLogin={onNavigateLogin}
       />
-
-      {/* --- MODAL POP UP (PERINGATAN LOGIN) --- */}
       {showLoginModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
            <div className="bg-white rounded-2xl p-6 w-80 shadow-2xl relative animate-in zoom-in-95 duration-200 text-center mx-4">
@@ -136,15 +123,12 @@ export default function DetailPage({
         </div>
       )}
 
-      {/* --- KONTEN UTAMA --- */}
       <main className="px-6 md:px-10 py-10 text-[#f5f1dc]">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl font-black mb-6 tracking-tight">Detail Film</h2>
           
-          {/* INFO MOVIE SECTION (Updated) */}
           <div className="flex flex-col md:flex-row gap-8 items-start relative">
             
-            {/* WRAPPER GAMBAR + TOMBOL WISHLIST */}
             <div className="relative w-full md:w-64 aspect-[2/3] flex-shrink-0">
                 <img
                 src={displayMovie.poster_url || displayMovie.img}
@@ -153,7 +137,6 @@ export default function DetailPage({
                 onError={(e) => {e.target.onerror = null; e.target.src = "https://via.placeholder.com/300x450?text=No+Image";}}
                 />
 
-                {/* --- TOMBOL WISHLIST BARU --- */}
                 <button
                     onClick={handleToggleWishlist}
                     className="absolute top-3 right-3 p-3 bg-white/20 backdrop-blur-md rounded-full shadow-lg transition-all hover:scale-110 active:scale-95 border border-white/30 group"
@@ -188,7 +171,6 @@ export default function DetailPage({
             </div>
           </div>
 
-          {/* TABS & JADWAL (Tidak ada perubahan) */}
           <div className="mt-12">
             <div className="flex gap-8 border-b-2 border-white/20">
               {["jadwal", "detail"].map((tab) => (
@@ -206,7 +188,6 @@ export default function DetailPage({
               ))}
             </div>
 
-            {/* KONTEN TAB: JADWAL */}
             {activeTab === "jadwal" && (
               <div className="py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="flex gap-3 overflow-x-auto py-2 pb-4 scrollbar-hide">
@@ -270,7 +251,6 @@ export default function DetailPage({
               </div>
             )}
 
-            {/* KONTEN TAB: DETAIL */}
             {activeTab === "detail" && (
               <div className="py-8 text-lg leading-relaxed text-white/80 animate-in fade-in duration-300">
                 <p>Sinopsis lengkap, cast, dan informasi kru film akan ditampilkan di sini.</p>

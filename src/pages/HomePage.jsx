@@ -3,14 +3,10 @@ import axios from "axios";
 import { Search, Star, PlayCircle, Clock, Calendar, ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation, EffectFade } from 'swiper/modules';
-
-// Import CSS Swiper wajib
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/effect-fade';
-
-// Import Component Header yang udah dipisah
 import MainHeader from "../components/MainHeader";
 
 const API_BASE_URL = "https://cinix-be.vercel.app";

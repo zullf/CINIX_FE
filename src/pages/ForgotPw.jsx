@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Mail, ArrowLeft, Loader2, CheckCircle } from "lucide-react";
-
-// --- IMPORT KOMPONEN REUSABLE (YANG TADI DIBUAT) ---
 import AuthHeader from "../components/AuthHeader";
 import FormInput from "../components/FormInput";
 
@@ -21,11 +19,7 @@ export default function ForgotPasswordPage({ onNavigateLogin }) {
     setError(null);
 
     try {
-      // Endpoint Mockup
       const endpoint = "https://cinix-be.vercel.app/forgot-password";
-      // await axios.post(endpoint, { email });
-
-      // Simulasi delay
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       setMessage("Link reset password telah dikirim ke email Anda.");
@@ -40,7 +34,6 @@ export default function ForgotPasswordPage({ onNavigateLogin }) {
 
   return (
     <div className="flex flex-col min-h-screen relative">
-      {/* 1. Pakai AuthHeader biar sama kayak Sign Up */}
       <AuthHeader />
 
       <main
@@ -53,7 +46,6 @@ export default function ForgotPasswordPage({ onNavigateLogin }) {
       >
         <div className="w-full max-w-md bg-gray-900/60 backdrop-blur-lg rounded-2xl shadow-2xl p-8 text-white relative">
           
-          {/* Judul */}
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold mb-2">Forgot Password?</h2>
             <p className="text-gray-300 text-sm">
@@ -61,7 +53,6 @@ export default function ForgotPasswordPage({ onNavigateLogin }) {
             </p>
           </div>
 
-          {/* Alert Sukses */}
           {message && (
             <div className="mb-6 p-4 bg-green-500/20 border border-green-500 rounded-lg flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
               <CheckCircle className="text-green-400 shrink-0" size={20} />
@@ -69,7 +60,6 @@ export default function ForgotPasswordPage({ onNavigateLogin }) {
             </div>
           )}
 
-          {/* Alert Error */}
           {error && (
             <div className="mb-6 p-3 bg-red-500/50 border border-red-500 rounded-lg text-sm text-center animate-pulse">
               {error}
@@ -77,7 +67,6 @@ export default function ForgotPasswordPage({ onNavigateLogin }) {
           )}
 
           <form onSubmit={handleResetPassword}>
-            {/* 2. Pakai FormInput (Reuse Code!) */}
             <FormInput 
                 id="email" 
                 type="email" 
@@ -106,7 +95,6 @@ export default function ForgotPasswordPage({ onNavigateLogin }) {
             </button>
           </form>
 
-          {/* Footer Link */}
           <div className="mt-8 text-center">
             <button
               onClick={onNavigateLogin}

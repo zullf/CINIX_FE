@@ -93,15 +93,12 @@ export default function WishlistPage({ onNavigateHome, onNavigateLogin, onNaviga
       <main className="container mx-auto px-4 md:px-8 py-10 max-w-5xl">
         <div className="bg-[#f5f1dc] min-h-[600px] rounded-3xl shadow-2xl p-8 md:p-12 relative overflow-hidden">
             
-            {/* JUDUL HALAMAN */}
             <div className="text-center mb-12">
                 <h1 className="text-4xl font-black text-[#2a4c44] tracking-tight">Wishlist</h1>
                 <div className="h-1 w-20 bg-amber-500 mx-auto mt-4 rounded-full"></div>
             </div>
 
-            {/* LOGIC TAMPILAN */}
             {wishlistItems.length > 0 ? (
-                // TAMPILAN ADA ISI (Mirip Referensi Gambar)
                 <div className="animate-in slide-in-from-bottom-4 duration-500">
                     <div className="border-t border-[#2a4c44]/20">
                         {wishlistItems.map((movie) => (
@@ -113,8 +110,6 @@ export default function WishlistPage({ onNavigateHome, onNavigateLogin, onNaviga
                             />
                         ))}
                     </div>
-
-                    {/* Footer "Add all to bag" style */}
                     <div className="mt-12 flex flex-col md:flex-row justify-between items-center gap-6">
                         <div className="text-[#2a4c44]">
                             <span className="font-bold">Total Item:</span> {wishlistItems.length} Film
@@ -126,7 +121,6 @@ export default function WishlistPage({ onNavigateHome, onNavigateLogin, onNaviga
                     </div>
                 </div>
             ) : (
-                // TAMPILAN KOSONG (Default saat ini)
                 <EmptyWishlist onNavigateHome={onNavigateHome} />
             )}
 

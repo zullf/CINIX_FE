@@ -1,42 +1,30 @@
 import React, { useState, useMemo } from "react";
 import { Search, ChevronRight, MapPin } from "lucide-react";
-// --- FIX: Tambahkan import ini supaya tidak blank screen ---
 import { useNavigate } from "react-router-dom";
-
-// Import Header (Sesuaikan nama file header kamu)
-import DetailHeader from "../components/detMovieHeader"; // Atau "../components/detMovieHeader" kalau kamu pake nama itu
+import DetailHeader from "../components/detMovieHeader"; 
 
 const CINEMA_DATABASE = [
-  // JAKARTA
   { id: 1, city: "JAKARTA", name: "AEON MALL TANJUNG BARAT XXI", brand: "XXI" },
   { id: 2, city: "JAKARTA", name: "GRAND INDONESIA CGV", brand: "CGV" },
   { id: 3, city: "JAKARTA", name: "PLAZA SENAYAN XXI", brand: "XXI" },
   { id: 4, city: "JAKARTA", name: "GANDARIA CITY XXI", brand: "XXI" },
   { id: 5, city: "JAKARTA", name: "KOTA KASABLANKA XXI", brand: "XXI" },
   { id: 6, city: "JAKARTA", name: "PONDOK INDAH 2 XXI", brand: "XXI" },
-  
-  // BOGOR
   { id: 11, city: "BOGOR", name: "BOTANI SQUARE XXI", brand: "XXI" },
   { id: 12, city: "BOGOR", name: "AEON MALL SENTUL CITY XXI", brand: "XXI" },
   { id: 13, city: "BOGOR", name: "CIBINONG CITY MALL XXI", brand: "XXI" },
   { id: 14, city: "BOGOR", name: "TRANSMART BOGOR CGV", brand: "CGV" },
   { id: 15, city: "BOGOR", name: "BOXIES 123 MALL CINEPOLIS", brand: "CINEPOLIS" },
-
-  // DEPOK
   { id: 21, city: "DEPOK", name: "MARGO CITY XXI", brand: "XXI" },
   { id: 22, city: "DEPOK", name: "PESONA SQUARE XXI", brand: "XXI" },
   { id: 23, city: "DEPOK", name: "D'MALL CGV", brand: "CGV" },
   { id: 24, city: "DEPOK", name: "THE PARK SAWANGAN XXI", brand: "XXI" },
   { id: 25, city: "DEPOK", name: "CINERE BELLEVUE XXI", brand: "XXI" },
-
-  // TANGERANG
   { id: 31, city: "TANGERANG", name: "AEON MALL BSD CITY XXI", brand: "XXI" },
   { id: 32, city: "TANGERANG", name: "SUMMARECON MALL SERPONG XXI", brand: "XXI" },
   { id: 33, city: "TANGERANG", name: "THE BREEZE BSD CITY XXI", brand: "XXI" },
   { id: 34, city: "TANGERANG", name: "SUPERMAL KARAWACI XXI", brand: "XXI" },
   { id: 35, city: "TANGERANG", name: "TERASKOTA CGV", brand: "CGV" },
-
-  // BEKASI
   { id: 41, city: "BEKASI", name: "SUMMARECON MALL BEKASI XXI", brand: "XXI" },
   { id: 42, city: "BEKASI", name: "GRAND METROPOLITAN XXI", brand: "XXI" },
   { id: 43, city: "BEKASI", name: "MEGA BEKASI XXI", brand: "XXI" },
@@ -99,7 +87,6 @@ export default function SearchPage({ onNavigateHome, onNavigateLogin }) {
   }, [activeCity, searchQuery]);
 
   const handleSelectCinema = (cinema) => {
-      // Navigasi ke halaman detail bioskop dengan membawa data bioskop
       navigate(`/cinema/${cinema.id}`, { 
           state: { cinemaData: cinema } 
       });

@@ -36,7 +36,6 @@ export default function AdminDashboardPage() {
   }, [isAdmin, refreshKey]);
 
   const handleLogout = () => {
-    // Call API Logout agar cookie di server dihapus juga
     axios.post(`${API_BASE_URL}/admin/logout`, {}, { withCredentials: true }).catch(()=>{});
     
     localStorage.removeItem("admin_auth");
@@ -48,7 +47,7 @@ export default function AdminDashboardPage() {
     if (!confirm("Yakin hapus film ini?")) return;
     try {
       await axios.delete(`${API_BASE_URL}/admin/deletemovie/${id}`, {
-        withCredentials: true // Wajib ada untuk cookie
+        withCredentials: true 
       });
       alert("Terhapus!");
       setRefreshKey(prev => prev + 1);

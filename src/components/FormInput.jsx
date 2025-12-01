@@ -1,6 +1,5 @@
 import React from "react";
 
-// Component reusable untuk Input Field
 export default function FormInput({ 
   id, 
   type = "text", 

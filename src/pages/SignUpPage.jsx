@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { User, Mail, Phone, Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
-
-// Import Components Baru
 import AuthHeader from "../components/AuthHeader";
 import FormInput from "../components/FormInput";
 
@@ -16,9 +14,7 @@ const FacebookIcon = (props) => (
 export default function SignUpPage({ onNavigateLogin }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
-  // Data State
-  const [formData, setFormData] = useState({ name: "", email: "", phone: "", password: "", confirm_password: "" });
+    const [formData, setFormData] = useState({ name: "", email: "", phone: "", password: "", confirm_password: "" });
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -51,7 +47,6 @@ export default function SignUpPage({ onNavigateLogin }) {
     <div className="flex flex-col min-h-screen relative">
       <AuthHeader />
 
-      {/* --- MODAL SUKSES --- */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-white rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-300">
@@ -83,12 +78,10 @@ export default function SignUpPage({ onNavigateLogin }) {
           )}
 
           <form onSubmit={handleRegister}>
-            {/* PENGGUNAAN FORM INPUT YANG JAUH LEBIH RAPI */}
             <FormInput id="name" label="Full Name" placeholder="Your Name" icon={User} value={formData.name} onChange={handleChange} />
             <FormInput id="email" type="email" label="Email Address" placeholder="you@example.com" icon={Mail} value={formData.email} onChange={handleChange} />
             <FormInput id="phone" type="tel" label="Phone Number" placeholder="0812..." icon={Phone} value={formData.phone} onChange={handleChange} />
             
-            {/* Password dengan Toggle Eye */}
             <FormInput 
               id="password" 
               type={showPassword ? "text" : "password"} 
@@ -96,7 +89,6 @@ export default function SignUpPage({ onNavigateLogin }) {
               placeholder="••••••••" 
               value={formData.password} 
               onChange={handleChange}
-              // Kita ganti icon bawaan dengan elemen khusus (toggle)
               rightElement={
                  <div className="flex items-center gap-2 text-gray-400">
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="hover:text-white transition-colors">
