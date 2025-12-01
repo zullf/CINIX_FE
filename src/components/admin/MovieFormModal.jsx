@@ -40,12 +40,10 @@ export default function MovieFormModal({ show, onClose, editData, onSuccess }) {
     setLoading(true);
     
     try {
-      // 1. AMBIL TOKEN YANG DISIMPAN TADI
       const token = localStorage.getItem("admin_token");
       
       if (!token) {
           alert("Token Admin hilang. Mohon login ulang.");
-          // localStorage.clear(); // Optional
           window.location.reload();
           return;
       }
@@ -56,14 +54,11 @@ export default function MovieFormModal({ show, onClose, editData, onSuccess }) {
             data.append(key, formData[key]);
         }
       });
-
-      // 2. TEMPEL TOKEN DI HEADER
-      // Ini bypass masalah cookie. Kita tunjukkan "KTP" langsung ke satpam.
       const config = {
         headers: {
             'Authorization': `Bearer ${token}` 
         },
-        withCredentials: true // Biarkan true, gak ada ruginya
+        withCredentials: true 
       };
 
       if (editData) {

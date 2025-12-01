@@ -24,28 +24,21 @@ export default function AdminLogin({ onLoginSuccess }) {
 
       const response = await axios.post(`${API_BASE_URL}/admin/login`, params, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        withCredentials: true // Tetap biarkan, siapa tau di Production (Vercel ke Vercel) cookie-nya jalan
+        withCredentials: true 
       });
       
       console.log("RESPONSE LOGIN:", response.data);
-
-      // --- LOGIKA PENYELAMATAN TOKEN ---
-      // 1. Cek Token di response body level luar
       let token = response.data.token;
       
-      // 2. Kalau gak ada, cek di dalam object user/data (kadang struktur BE beda)
       if (!token && response.data.data && response.data.data.token) {
           token = response.data.data.token;
       }
 
       if (token) {
-          // SIMPAN TOKEN KE SAKU (LocalStorage)
-          // Ini kunci supaya fitur lain jalan meski Cookie diblokir browser
           localStorage.setItem("admin_token", token);
           localStorage.setItem("admin_auth", "true");
           onLoginSuccess();
       } else {
-          // Kalau Token beneran gak dikirim di body, kita pasrah sama cookie (yang kemungkinan gagal)
           console.warn("Waduh, Backend gak ngirim token di Body. Berdoa semoga Cookie masuk.");
           localStorage.setItem("admin_auth", "true");
           onLoginSuccess();
