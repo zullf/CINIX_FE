@@ -9,7 +9,6 @@ import ForgotPasswordPage from "./pages/ForgotPw.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
 import DetailPage from "./pages/DetMoviePage.jsx";
 import BookingPage from "./pages/BookingPage.jsx";
-import PaymentPage from "./pages/PaymentPage.jsx"; 
 import MyTicketsPage from "./pages/MyTicketsPage";
 import WishlistPage from "./pages/WishlistPage";
 import CinemaDetailPage from "./pages/CinemaDetailPage";
@@ -30,14 +29,6 @@ const BookingWrapper = ({ baseProps }) => {
   if (!movie) return <Navigate to="/" replace />;
   return <BookingPage {...baseProps} movie={movie} cinema={cinema} time={time} />;
 };
-
-// const PaymentWrapper = ({ baseProps }) => {
-//   const location = useLocation();
-//   const { movie, cinema, time, seats, quantity } = location.state || {};
-  
-//   if (!movie) return <Navigate to="/" replace />;
-//   return <PaymentPage {...baseProps} movie={movie} cinema={cinema} time={time} seats={seats || []} quantity={quantity || 0} user={baseProps.user} />;
-// };
 
 function CinixRoutes() {
   const navigate = useNavigate();
@@ -83,7 +74,6 @@ function CinixRoutes() {
     onNavigateWishlist: () => navigate('/wishlist'),
     onNavigateDetail: (movie) => navigate(`/detail/${movie.id_movie}`, { state: { movie } }),
     onNavigateBooking: (movie, cinema, time) => {navigate('/booking', { state: { movie, cinema, time } }); },
-    // onNavigatePayment: (movie, cinema, seats, quantity) => navigate('/payment', { state: { movie, cinema, time, seats, quantity } }),
     user: currentUser,
     onLogoutClick: handleLogoutClick,
     onLoginSuccess: handleLoginSuccess
@@ -99,7 +89,6 @@ return (
         <Route path="/forgot-password" element={<ForgotPasswordPage {...navProps} />} />
         <Route path="/detail/:id_movie" element={<DetailWrapper baseProps={navProps} />} />
         <Route path="/booking" element={<BookingWrapper baseProps={navProps} />} />
-        {/* <Route path="/payment" element={<PaymentWrapper baseProps={navProps} />} /> */}
         <Route path="/mytickets" element={<MyTicketsPage user={currentUser} />} />
         <Route path="/wishlist" element={<WishlistPage {...navProps} />} />
         <Route path="/cinema/:id" element={<CinemaDetailPage {...navProps} />} />
