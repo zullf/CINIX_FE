@@ -94,9 +94,10 @@ export default function DetailPage({ onNavigateHome, onNavigateLogin, onNavigate
   useEffect(() => {
     const fetchMovie = async () => {
       try {
-        const response = await axios.get(`https://cinix-be.vercel.app/movies/${id_movie}`);
+        const response = await axios.get(`https://cinix-be.vercel.app/movies/${id_movie}`, 
+          { withCredentials: true }
+        );
         console.log("API Response:", response.data);
-        
         const data = response.data.movie;
         setMovie(data);
 
