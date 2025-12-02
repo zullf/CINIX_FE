@@ -160,6 +160,7 @@ export default function BookingPage({ movie, cinema, time }) {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
+        credentials: "include",
         body: formData.toString()
       });
 
