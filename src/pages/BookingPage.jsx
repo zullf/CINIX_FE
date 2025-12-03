@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Home, ChevronLeft, Calendar, Loader2 } from "lucide-react";
+
+// TODO: Create axiosConfig.js file and import it here for better cookie handling
+// import axios from "../config/axiosConfig";
 import { useNavigate, useLocation } from "react-router-dom";
 
+// --- Seat component ---
 const Seat = ({ id, status, onClick, label }) => {
   const baseStyle = "w-9 h-9 md:w-11 md:h-11 rounded-t-lg text-[10px] md:text-xs font-bold transition-all duration-200 flex items-center justify-center select-none shadow-sm";
   const styles = {
@@ -51,14 +55,17 @@ export default function BookingPage(props) {
   const location = useLocation();
   const stateFromNav = location.state || {};
 
+  // Props or navigation state fallback
   const movie = props.movie || stateFromNav.movie || { title: "TRON: ARES (2025)", poster_url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8tq8lygfqv4hEIDsAjS88Rdh-z99CusKQyg&s" };
   const cinema = props.cinema || stateFromNav.cinema || "AEON MALL TANJUNG BARAT XXI";
   const time = props.time || stateFromNav.time || "14:30";
-  const scheduleId = props.scheduleId || stateFromNav.scheduleId || "default-schedule-id";
-  const studioId = props.studioId || stateFromNav.studioId;
+  const scheduleId = props.scheduleId || stateFromNav.scheduleId || "default-schedule-id"; // ✅ Fallback untuk testing
+  const studioId = props.studioId || stateFromNav.studioId || "6cf13e1f-105d-4cc9-b76e-6f4b6db93f61";
   
+  // Get userId from props/state, or fetch from auth
   let userId = props.userId || stateFromNav.userId;
   
+  // If userId not in props/state, try to get from localStorage or cookies
   if (!userId) {
     try {
       const userFromStorage = localStorage.getItem('user');
@@ -73,6 +80,16 @@ export default function BookingPage(props) {
   
   const midtransClientKey = props.midtransClientKey || stateFromNav.midtransClientKey || import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
 
+  // Debug log
+  console.log("BookingPage Props:", {
+    scheduleId,
+    studioId,
+    userId,
+    cinema,
+    time,
+    movie
+  });
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [seatsData, setSeatsData] = useState([]);
@@ -84,6 +101,7 @@ export default function BookingPage(props) {
 
   const snapLoadedRef = useRef(false);
 
+  // Load Midtrans Snap script
   useEffect(() => {
     if (!midtransClientKey) {
       console.warn("Midtrans client key not provided. Snap.js will not be loaded.");
@@ -111,16 +129,20 @@ export default function BookingPage(props) {
     document.body.appendChild(script);
   }, [midtransClientKey]);
 
+  // Fetch seats
   useEffect(() => {
     const load = async () => {
       let currentStudioId = studioId;
 
+      // Kalau studioId ga ada, fetch dari schedule
       if (!currentStudioId && scheduleId) {
         try {
+          console.log("Fetching schedule to get studioId...");
           const scheduleRes = await axios.get(`https://cinix-be.vercel.app/schedules/${scheduleId}`, {
             withCredentials: true
           });
           currentStudioId = scheduleRes.data?.studio_id || scheduleRes.data?.data?.studio_id;
+          console.log("Studio ID from schedule:", currentStudioId);
         } catch (err) {
           console.error("Failed to fetch schedule:", err);
         }
@@ -147,14 +169,18 @@ export default function BookingPage(props) {
           return;
         }
 
+        console.log("Raw seats data:", raw); // Debug: cek struktur data
+
+        // Grouping per row
         const grouped = raw.reduce((acc, seat) => {
           const row = seat.seat_number.charAt(0);
           const num = parseInt(seat.seat_number.slice(1), 10);
           if (!acc[row]) acc[row] = [];
           
+          // Use seat_number as ID (API doesn't return id_seat)
           acc[row].push({ 
             ...seat, 
-            id_seat: seat.seat_number,
+            id_seat: seat.seat_number, // Use seat_number as unique ID
             _num: num 
           });
           return acc;
@@ -179,9 +205,10 @@ export default function BookingPage(props) {
     load();
   }, [studioId]);
 
+  // Toggle seat selection (using id_seat)
   const toggleSeat = (seatId) => {
-    console.log("Toggling seat:", seatId); 
-    console.log("Current selected seats:", selectedSeats); 
+    console.log("Toggling seat:", seatId); // Debug
+    console.log("Current selected seats:", selectedSeats); // Debug
     
     if (selectedSeats.includes(seatId)) {
       setSelectedSeats(prev => prev.filter(s => s !== seatId));
@@ -194,6 +221,7 @@ export default function BookingPage(props) {
     setSelectedSeats(prev => [...prev, seatId]);
   };
 
+  // Get display seat numbers for summary
   const displaySeats = seatsData
     .flatMap(row => row.seats)
     .filter(seat => selectedSeats.includes(seat.id_seat))
@@ -201,11 +229,13 @@ export default function BookingPage(props) {
     .sort((a,b) => a.localeCompare(b, undefined, {numeric: true}))
     .join(", ");
 
+  // Proceed to payment
   const handleProceedToPayment = async () => {
     if (selectedSeats.length === 0) return;
     
-    console.log("Payment check:", { userId, scheduleId });
+    console.log("Payment check:", { userId, scheduleId }); // Debug
     
+    // Backend will get userId from JWT token, so scheduleId is enough
     if (!scheduleId) {
       alert("Schedule tidak lengkap. Pastikan data schedule tersedia.");
       return;
@@ -227,7 +257,7 @@ export default function BookingPage(props) {
         headers: { 
           "Content-Type": "application/x-www-form-urlencoded"
         },
-        withCredentials: true
+        withCredentials: true // ✅ Cookie-only authentication
       });
 
       const data = res.data || {};
@@ -413,8 +443,10 @@ export default function BookingPage(props) {
                 `Lanjut Pembayaran (${selectedSeats.length})`
               )}
             </button>
+
           </div>
         </div>
+
       </div>
     </div>
   );
