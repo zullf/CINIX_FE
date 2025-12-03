@@ -54,7 +54,7 @@ export default function LoginPage({ onNavigateRegister, onNavigateForgotPassword
         setLoginSuccess(true);
 
         setTimeout(() => {
-             window.location.href = "/"; 
+            window.location.href = "/"; 
         }, 2000);
 
       } else {
@@ -94,7 +94,7 @@ export default function LoginPage({ onNavigateRegister, onNavigateForgotPassword
               <p className="text-gray-300 text-sm">Selamat datang,</p>
               <p className="text-amber-300 font-semibold text-lg mt-1">{userName}</p>
               <div className="mt-8 flex items-center gap-2 text-xs text-gray-400">
-                 <span className="animate-pulse font-bold">MENGALIHKAN KE BERANDA...</span>
+                  <span className="animate-pulse font-bold">MENGALIHKAN KE BERANDA...</span>
               </div>
             </div>
           )}
