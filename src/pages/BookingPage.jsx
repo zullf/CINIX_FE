@@ -1,64 +1,37 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import { Home, ChevronLeft, Calendar, Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
-// --- 1. MOCK DATA GENERATOR ---
-const generateMockData = () => {
-  const rows = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"];
-  
-  // DAFTAR KURSI YANG SUDAH TERISI
-  const soldSeats = [
-      "A5", "A6", 
-      "C3", "C4", 
-      "G10", "G11", 
-      "F1", "F2", 
-      "H5", "H6", "H7",
-      "K1", "K2", "K11", "K12"
-  ];
-
-  const data = [];
-  
-  rows.forEach(row => {
-    for (let i = 1; i <= 12; i++) {
-      const seatId = `${row}${i}`;
-      const isTaken = soldSeats.includes(seatId);
-
-      data.push({
-        seat_number: seatId,
-        seat_type: "regular",
-        is_available: !isTaken 
-      });
-    }
-  });
-  
-  return {
-    message: "Data kursi berhasil diambil",
-    data: data
-  };
-};
-
-// --- 2. COMPONENT: SEAT ---
+// --- Seat component ---
 const Seat = ({ id, status, onClick, label }) => {
   const baseStyle = "w-9 h-9 md:w-11 md:h-11 rounded-t-lg text-[10px] md:text-xs font-bold transition-all duration-200 flex items-center justify-center select-none shadow-sm";
-  
   const styles = {
-    available: "bg-white text-[#2a4c44] border border-gray-300 hover:bg-[#6a8e7f] hover:text-white hover:border-[#6a8e7f] cursor-pointer hover:shadow-md hover:-translate-y-0.5",
+    available: "bg-white text-[#2a4c44] border border-gray-300 hover:bg-[#6a8e7f] hover:text-white hover:border-[#6a4c7] cursor-pointer hover:shadow-md hover:-translate-y-0.5",
     selected: "bg-[#6a8e7f] text-white shadow-lg transform scale-110 border border-[#6a8e7f] cursor-pointer ring-2 ring-[#6a8e7f]/30 z-10",
     taken: "bg-gray-300 text-gray-400 cursor-not-allowed border-transparent opacity-80"
   };
 
+  const handleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (status !== 'taken') {
+      onClick(id);
+    }
+  };
+
   return (
     <button
-      onClick={() => status !== 'taken' && onClick(id)}
+      onClick={handleClick}
       disabled={status === 'taken'}
       className={`${baseStyle} ${styles[status]}`}
+      type="button"
     >
       {label}
     </button>
   );
 };
 
-// --- 3. COMPONENT: HEADER ---
 const Header = ({ title, subtitle, onBack, onHome }) => (
   <header className="flex items-center justify-between px-6 py-4 bg-[#f5f1dc] shadow-sm sticky top-0 z-50">
     <button onClick={onBack} className="p-2 -ml-2 text-[#2a4c44] hover:bg-black/5 rounded-full transition">
@@ -74,196 +47,326 @@ const Header = ({ title, subtitle, onBack, onHome }) => (
   </header>
 );
 
-// --- 4. MAIN PAGE ---
-export default function BookingPage({ movie, cinema, time }) {
+export default function BookingPage(props) {
   const navigate = useNavigate();
-  
-  // State
+  const location = useLocation();
+  const stateFromNav = location.state || {};
+
+  // Props or navigation state fallback
+  const movie = props.movie || stateFromNav.movie || { title: "TRON: ARES (2025)", poster_url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8tq8lygfqv4hEIDsAjS88Rdh-z99CusKQyg&s" };
+  const cinema = props.cinema || stateFromNav.cinema || "AEON MALL TANJUNG BARAT XXI";
+  const time = props.time || stateFromNav.time || "14:30";
+  const scheduleId = props.scheduleId || stateFromNav.scheduleId;
+  const studioId = props.studioId || stateFromNav.studioId || "6cf13e1f-105d-4cc9-b76e-6f4b6db93f61";
+  const userId = props.userId || stateFromNav.userId;
+  const midtransClientKey = props.midtransClientKey || stateFromNav.midtransClientKey || import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
+
+  // Debug log
+  console.log("BookingPage Props:", {
+    scheduleId,
+    studioId,
+    userId,
+    cinema,
+    time,
+    movie
+  });
+
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false); // State untuk loading saat bayar
-  const [seatsData, setSeatsData] = useState([]); 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [seatsData, setSeatsData] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
-  
-  // Fallback Data
-  const displayMovie = movie || { 
-    title: "TRON: ARES (2025)", 
-    poster_url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8tq8lygfqv4hEIDsAjS88Rdh-z99CusKQyg&s" 
-  };
-  const ticketPrice = 50000;
+  const [error, setError] = useState(null);
 
-  // --- FETCH & PROCESS SEAT DATA ---
+  const ticketPrice = props.ticketPrice || 50000;
+  const maxSeats = props.maxSeats || 8;
+
+  const snapLoadedRef = useRef(false);
+
+  // Load Midtrans Snap script
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const apiResponse = generateMockData(); 
-      const rawData = apiResponse.data;
+    if (!midtransClientKey) {
+      console.warn("Midtrans client key not provided. Snap.js will not be loaded.");
+      return;
+    }
 
-      // Grouping Data Flat menjadi Per-Row
-      const grouped = rawData.reduce((acc, seat) => {
-        const rowChar = seat.seat_number.charAt(0);
-        const seatNum = parseInt(seat.seat_number.substring(1));
+    if (document.querySelector('script[data-midtrans-snap]')) {
+      snapLoadedRef.current = !!window.snap;
+      return;
+    }
 
-        if (!acc[rowChar]) acc[rowChar] = [];
-        acc[rowChar].push({ ...seat, _num: seatNum });
-        return acc;
-      }, {});
+    const script = document.createElement("script");
+    script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
+    script.async = true;
+    script.setAttribute("data-client-key", midtransClientKey);
+    script.setAttribute("data-midtrans-snap", "true");
+    script.onload = () => {
+      snapLoadedRef.current = !!window.snap;
+      console.log("Midtrans Snap loaded", snapLoadedRef.current);
+    };
+    script.onerror = () => {
+      console.error("Failed to load Midtrans Snap.js");
+    };
 
-      Object.keys(grouped).forEach(row => {
-        grouped[row].sort((a, b) => a._num - b._num);
-      });
+    document.body.appendChild(script);
+  }, [midtransClientKey]);
 
-      const processed = Object.keys(grouped).sort().map(row => ({
-        rowLabel: row,
-        seats: grouped[row]
-      }));
+  // Fetch seats
+  useEffect(() => {
+    const load = async () => {
+      let currentStudioId = studioId;
 
-      setSeatsData(processed);
-      setIsLoading(false);
-    }, 800);
+      // Kalau studioId ga ada, fetch dari schedule
+      if (!currentStudioId && scheduleId) {
+        try {
+          console.log("Fetching schedule to get studioId...");
+          const scheduleRes = await axios.get(`https://cinix-be.vercel.app/schedules/${scheduleId}`, {
+            withCredentials: true
+          });
+          currentStudioId = scheduleRes.data?.studio_id || scheduleRes.data?.data?.studio_id;
+          console.log("Studio ID from schedule:", currentStudioId);
+        } catch (err) {
+          console.error("Failed to fetch schedule:", err);
+        }
+      }
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  // --- LOGIC KLIK KURSI ---
-  const toggleSeat = (id) => {
-    if (selectedSeats.includes(id)) {
-      setSelectedSeats(prev => prev.filter(seatId => seatId !== id));
-    } else {
-      if (selectedSeats.length >= 8) {
-        alert("Maksimal 8 kursi per transaksi.");
+      if (!currentStudioId) {
+        setError("Studio ID tidak tersedia. Pastikan data dikirim dari halaman sebelumnya.");
+        setIsLoading(false);
         return;
       }
-      setSelectedSeats(prev => [...prev, id]);
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const res = await axios.get(`https://cinix-be.vercel.app/studios/${currentStudioId}/seats`, { 
+          withCredentials: true 
+        });
+        const raw = res.data?.data || res.data;
+
+        if (!raw || raw.length === 0) {
+          setError("Tidak ada data kursi tersedia");
+          setIsLoading(false);
+          return;
+        }
+
+        console.log("Raw seats data:", raw); // Debug: cek struktur data
+
+        // Grouping per row
+        const grouped = raw.reduce((acc, seat) => {
+          const row = seat.seat_number.charAt(0);
+          const num = parseInt(seat.seat_number.slice(1), 10);
+          if (!acc[row]) acc[row] = [];
+          
+          // Use seat_number as ID (API doesn't return id_seat)
+          acc[row].push({ 
+            ...seat, 
+            id_seat: seat.seat_number, // Use seat_number as unique ID
+            _num: num 
+          });
+          return acc;
+        }, {});
+
+        Object.keys(grouped).forEach(r => grouped[r].sort((a,b) => a._num - b._num));
+
+        const processed = Object.keys(grouped).sort().map(r => ({ 
+          rowLabel: r, 
+          seats: grouped[r] 
+        }));
+        
+        setSeatsData(processed);
+      } catch (err) {
+        console.error(err);
+        setError("Gagal memuat data kursi. Periksa koneksi atau server.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    load();
+  }, [studioId]);
+
+  // Toggle seat selection (using id_seat)
+  const toggleSeat = (seatId) => {
+    console.log("Toggling seat:", seatId); // Debug
+    console.log("Current selected seats:", selectedSeats); // Debug
+    
+    if (selectedSeats.includes(seatId)) {
+      setSelectedSeats(prev => prev.filter(s => s !== seatId));
+      return;
     }
+    if (selectedSeats.length >= maxSeats) {
+      alert(`Maksimal ${maxSeats} kursi per transaksi.`);
+      return;
+    }
+    setSelectedSeats(prev => [...prev, seatId]);
   };
 
-  // --- LOGIC PEMBAYARAN (API INTEGRATION) ---
+  // Get display seat numbers for summary
+  const displaySeats = seatsData
+    .flatMap(row => row.seats)
+    .filter(seat => selectedSeats.includes(seat.id_seat))
+    .map(seat => seat.seat_number)
+    .sort((a,b) => a.localeCompare(b, undefined, {numeric: true}))
+    .join(", ");
+
+  // Proceed to payment
   const handleProceedToPayment = async () => {
     if (selectedSeats.length === 0) return;
+    if (!scheduleId) {
+      alert("User atau schedule tidak lengkap. Pastikan user login dan data schedule tersedia.");
+      return;
+    }
 
     setIsSubmitting(true);
+
     const totalAmount = selectedSeats.length * ticketPrice;
 
-    // Menyiapkan data body x-www-form-urlencoded
-    const formData = new URLSearchParams();
-    
-    // PERHATIAN: Ganti ID ini dengan data user/schedule yang real dari props atau context
-    formData.append("user_id", "0203acdc-31da-4f79-a3d8-804c9f2ef1e2"); 
-    formData.append("schedule_id", "02c0037c-3b6e-40f0-939a-b6ac42cd086e");
-    
-    // Menggabungkan kursi menjadi string dipisah koma (contoh: "A1,A2")
-    formData.append("seats", selectedSeats.join(",")); 
-    formData.append("amount", totalAmount.toString());
+    const params = new URLSearchParams();
+    params.append("schedule_id", scheduleId);
+    params.append("seats", selectedSeats.join(","));
+    params.append("amount", totalAmount.toString());
+
+    document.cookie
 
     try {
-      const response = await fetch("https://cinix-be.vercel.app/payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        credentials: "include",
-        body: formData.toString()
-      });
+      const res = await axios.post("https://cinix-be.vercel.app/payment", params.toString(), {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        withCredentials: true
+      })
+      .then(r => r.json())
+      .then(console.log)
+      .catch(console.error);
 
-      const result = await response.json();
+      const data = res.data || {};
+      const token = data.token || data.snap?.token || data.snap_token || data.transactionToken || null;
+      const redirectUrl = data.redirect_url || data.payment_url || null;
 
-      if (response.ok) {
-        // SUKSES
-        console.log("Payment Success:", result);
-        alert(`Pembayaran Berhasil!\nSeats: ${selectedSeats.join(", ")}\nTotal: Rp ${totalAmount.toLocaleString()}`);
-        // Redirect atau reset state disini
-        navigate('/'); 
+      if (token) {
+        if (!window.snap) {
+          const waited = await new Promise((resolve) => {
+            let tries = 0;
+            const t = setInterval(() => {
+              tries++;
+              if (window.snap) {
+                clearInterval(t);
+                resolve(true);
+              }
+              if (tries > 20) {
+                clearInterval(t);
+                resolve(false);
+              }
+            }, 100);
+          });
+
+          if (!waited) {
+            alert("Gagal memuat Midtrans Snap. Silakan refresh halaman.");
+            setIsSubmitting(false);
+            return;
+          }
+        }
+
+        window.snap.pay(token, {
+          onSuccess: function(result){
+            console.log("Midtrans success", result);
+            alert("Pembayaran sukses. Terima kasih.");
+            navigate("/");
+          },
+          onPending: function(result){
+            console.log("Midtrans pending", result);
+            alert("Pembayaran pending. Cek riwayat pembayaran.");
+            navigate("/");
+          },
+          onError: function(result){
+            console.error("Midtrans error", result);
+            alert("Terjadi kesalahan pembayaran. Silakan coba lagi.");
+          },
+          onClose: function(){
+            console.log("Midtrans popup closed by user");
+            setIsSubmitting(false);
+          }
+        });
+
+      } else if (redirectUrl) {
+        window.location.href = redirectUrl;
       } else {
-        // GAGAL
-        console.error("Payment Failed:", result);
-        alert(`Pembayaran Gagal: ${result.message || "Terjadi kesalahan pada server."}`);
+        console.error("Unexpected payment response:", data);
+        alert("Response pembayaran tidak valid dari server.");
+        setIsSubmitting(false);
       }
 
-    } catch (error) {
-      console.error("Network Error:", error);
-      alert("Terjadi kesalahan jaringan. Silakan coba lagi.");
-    } finally {
+    } catch (err) {
+      console.error(err);
+      alert("Gagal memproses pembayaran. Silakan coba lagi.");
       setIsSubmitting(false);
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#f5f1dc] flex flex-col items-center justify-center gap-4">
-        <div className="w-12 h-12 border-4 border-[#2a4c44] border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-[#2a4c44] font-semibold animate-pulse">Menyiapkan Denah...</p>
-      </div>
-    );
-  }
+  if (isLoading) return (
+    <div className="min-h-screen bg-[#f5f1dc] flex flex-col items-center justify-center gap-4">
+      <div className="w-12 h-12 border-4 border-[#2a4c44] border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-[#2a4c44] font-semibold animate-pulse">Memuat Data Kursi...</p>
+    </div>
+  );
+
+  if (error) return (
+    <div className="min-h-screen bg-[#f5f1dc] flex flex-col items-center justify-center gap-4 p-6">
+      <div className="text-red-600 text-6xl">⚠️</div>
+      <h2 className="text-xl font-bold text-[#2a4c44]">Terjadi Kesalahan</h2>
+      <p className="text-gray-600 text-center max-w-md">{error}</p>
+      <button onClick={() => window.location.reload()} className="mt-4 px-6 py-3 bg-[#2a4c44] text-white font-bold rounded-xl hover:bg-[#1e3630] transition">Coba Lagi</button>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#6a8e7f] flex flex-col font-sans">
       <Header 
-        title={displayMovie.title} 
+        title={movie.title} 
         subtitle={cinema || "AEON MALL TANJUNG BARAT XXI"} 
         onBack={() => navigate(-1)} 
-        onHome={() => navigate('/')}
+        onHome={() => navigate('/')} 
       />
 
       <div className="flex-grow flex flex-col lg:flex-row p-4 md:p-6 gap-6 max-w-7xl mx-auto w-full">
-        
-        {/* === AREA KIRI: LAYAR & KURSI === */}
         <div className="flex-grow bg-[#f5f1dc] p-4 md:p-8 rounded-3xl shadow-xl flex flex-col items-center overflow-hidden relative">
-          
           <h2 className="text-xl font-black text-[#2a4c44] mb-6 self-start">Pilih Kursi</h2>
 
-          {/* LAYAR BIOSKOP */}
           <div className="w-full max-w-2xl mb-12 relative flex justify-center">
-             <div className="w-full h-4 bg-[#2a4c44] rounded-full shadow-[0_20px_60px_-10px_rgba(42,76,68,0.6)]"></div>
-             <div className="absolute top-7 text-[10px] font-bold text-gray-400 tracking-[0.4em]">LAYAR</div>
-             <div className="absolute top-0 w-[80%] h-24 bg-gradient-to-b from-[#2a4c44]/15 to-transparent blur-xl pointer-events-none"></div>
+            <div className="w-full h-4 bg-[#2a4c44] rounded-full shadow-[0_20px_60px_-10px_rgba(42,76,68,0.6)]"></div>
+            <div className="absolute top-7 text-[10px] font-bold text-gray-400 tracking-[0.4em]">LAYAR</div>
           </div>
 
-          {/* GRID KURSI SCROLLABLE */}
           <div className="w-full overflow-x-auto pb-8 flex justify-center">
             <div className="flex flex-col gap-3 min-w-max px-4">
-              {seatsData.map((row) => (
+              {seatsData.map(row => (
                 <div key={row.rowLabel} className="flex items-center gap-8 md:gap-14 justify-center">
-                  
-                  {/* BLOK KIRI (1-6) */}
                   <div className="flex gap-1 md:gap-1.5">
-                    {row.seats.slice(0, 6).map((seat) => (
+                    {row.seats.slice(0,6).map(seat => (
                       <Seat 
-                        key={seat.seat_number}
-                        id={seat.seat_number}
+                        key={seat.id_seat}
+                        id={seat.id_seat}
                         label={seat.seat_number}
-                        status={
-                          !seat.is_available ? 'taken' : 
-                          selectedSeats.includes(seat.seat_number) ? 'selected' : 
-                          'available'
-                        }
-                        onClick={toggleSeat}
+                        status={!seat.is_available ? 'taken' : selectedSeats.includes(seat.id_seat) ? 'selected' : 'available'}
+                        onClick={toggleSeat} 
                       />
                     ))}
                   </div>
-
-                  {/* BLOK KANAN (7-12) */}
                   <div className="flex gap-1 md:gap-1.5">
-                    {row.seats.slice(6, 12).map((seat) => (
+                    {row.seats.slice(6,12).map(seat => (
                       <Seat 
-                        key={seat.seat_number}
-                        id={seat.seat_number}
+                        key={seat.id_seat}
+                        id={seat.id_seat}
                         label={seat.seat_number}
-                        status={
-                          !seat.is_available ? 'taken' : 
-                          selectedSeats.includes(seat.seat_number) ? 'selected' : 
-                          'available'
-                        }
-                        onClick={toggleSeat}
+                        status={!seat.is_available ? 'taken' : selectedSeats.includes(seat.id_seat) ? 'selected' : 'available'}
+                        onClick={toggleSeat} 
                       />
                     ))}
                   </div>
-
                 </div>
               ))}
             </div>
           </div>
 
-          {/* LEGEND */}
           <div className="flex flex-wrap justify-center gap-6 mt-4 pt-6 border-t border-[#2a4c44]/10 w-full text-sm text-[#2a4c44]">
             <div className="flex items-center gap-2"><div className="w-4 h-4 rounded bg-white border border-gray-300"></div> Tersedia</div>
             <div className="flex items-center gap-2"><div className="w-4 h-4 rounded bg-[#6a8e7f] border border-[#6a8e7f]"></div> Dipilih</div>
@@ -271,59 +374,55 @@ export default function BookingPage({ movie, cinema, time }) {
           </div>
         </div>
 
-        {/* === AREA KANAN: RINGKASAN ORDER === */}
         <div className="w-full lg:w-96 flex-shrink-0">
-            <div className="bg-white p-6 rounded-3xl shadow-xl sticky top-24">
-                <h2 className="text-xl font-black text-[#2a4c44] mb-6">Ringkasan</h2>
-                
-                <div className="flex gap-4 mb-6">
-                    <img src={displayMovie.poster_url} alt="Poster" className="w-20 h-28 object-cover rounded-xl shadow-md bg-gray-200" />
-                    <div>
-                        <h3 className="font-bold text-[#2a4c44] line-clamp-2 leading-tight mb-1">{displayMovie.title}</h3>
-                        <p className="text-xs text-gray-500 font-medium mb-2">{cinema || "XXI Cinema"}</p>
-                        <div className="inline-flex items-center gap-1 bg-amber-100 text-amber-700 text-[10px] px-2 py-1 rounded-md font-bold">
-                              <Calendar size={12} /> {time || "14:30"} WIB
-                        </div>
-                    </div>
-                </div>
+          <div className="bg-white p-6 rounded-3xl shadow-xl sticky top-24">
+            <h2 className="text-xl font-black text-[#2a4c44] mb-6">Ringkasan</h2>
 
-                <div className="border-t border-dashed border-gray-300 py-4 space-y-3 text-sm">
-                    <div className="flex justify-between items-start">
-                        <span className="text-gray-500">Nomor Kursi</span>
-                        <span className="font-bold text-[#2a4c44] text-right max-w-[150px] leading-snug">
-                            {selectedSeats.length > 0 
-                              ? selectedSeats.sort((a,b) => a.localeCompare(b, undefined, {numeric: true})).join(", ") 
-                              : "-"}
-                        </span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-500">Harga Satuan</span>
-                        <span className="font-medium">Rp {ticketPrice.toLocaleString('id-ID')}</span>
-                    </div>
+            <div className="flex gap-4 mb-6">
+              <img src={movie.poster_url} alt="Poster" className="w-20 h-28 object-cover rounded-xl shadow-md bg-gray-200" />
+              <div>
+                <h3 className="font-bold text-[#2a4c44] line-clamp-2 leading-tight mb-1">{movie.title}</h3>
+                <p className="text-xs text-gray-500 font-medium mb-2">{cinema || "XXI Cinema"}</p>
+                <div className="inline-flex items-center gap-1 bg-amber-100 text-amber-700 text-[10px] px-2 py-1 rounded-md font-bold">
+                  <Calendar size={12} /> {time || "14:30"} WIB
                 </div>
-
-                <div className="border-t border-gray-200 py-4 flex justify-between items-center mb-2">
-                    <span className="text-lg font-bold text-[#2a4c44]">Total</span>
-                    <span className="text-2xl font-black text-amber-500">
-                        Rp {(selectedSeats.length * ticketPrice).toLocaleString('id-ID')}
-                    </span>
-                </div>
-
-                <button
-                    onClick={handleProceedToPayment}
-                    disabled={selectedSeats.length === 0 || isSubmitting}
-                    className="w-full py-4 bg-[#2a4c44] text-white font-bold rounded-xl shadow-lg hover:bg-[#1e3630] hover:shadow-xl hover:-translate-y-1 transition-all disabled:bg-gray-300 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-y-0 flex items-center justify-center gap-2"
-                >
-                    {isSubmitting ? (
-                        <>
-                           <Loader2 className="animate-spin" size={20} />
-                           Memproses...
-                        </>
-                    ) : (
-                        `Lanjut Pembayaran (${selectedSeats.length})`
-                    )}
-                </button>
+              </div>
             </div>
+
+            <div className="border-t border-dashed border-gray-300 py-4 space-y-3 text-sm">
+              <div className="flex justify-between items-start">
+                <span className="text-gray-500">Nomor Kursi</span>
+                <span className="font-bold text-[#2a4c44] text-right max-w-[150px] leading-snug">
+                  {displaySeats || "-"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Harga Satuan</span>
+                <span className="font-medium">Rp {ticketPrice.toLocaleString('id-ID')}</span>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-200 py-4 flex justify-between items-center mb-2">
+              <span className="text-lg font-bold text-[#2a4c44]">Total</span>
+              <span className="text-2xl font-black text-amber-500">Rp {(selectedSeats.length * ticketPrice).toLocaleString('id-ID')}</span>
+            </div>
+
+            <button 
+              onClick={handleProceedToPayment} 
+              disabled={selectedSeats.length === 0 || isSubmitting}
+              className="w-full py-4 bg-[#2a4c44] text-white font-bold rounded-xl shadow-lg hover:bg-[#1e3630] hover:shadow-xl hover:-translate-y-1 transition-all disabled:bg-gray-300 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-y-0 flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="animate-spin" size={20} /> 
+                  Memproses...
+                </>
+              ) : (
+                `Lanjut Pembayaran (${selectedSeats.length})`
+              )}
+            </button>
+
+          </div>
         </div>
 
       </div>

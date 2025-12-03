@@ -134,7 +134,7 @@ export default function DetailPage({ onNavigateHome, onNavigateLogin, onNavigate
                 // Format Jam: 14:30
                 time: new Date(schedule.show_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 price: schedule.price,
-                studio: studioName
+                studio: studioName,
             });
         });
 
@@ -168,15 +168,27 @@ export default function DetailPage({ onNavigateHome, onNavigateLogin, onNavigate
   }, [id_movie]);
 
   // --- LOGIC HANDLERS ---
-  const handleBook = (theaterName, timeData) => {
+  const handleBook = (theaterName, schedule) => {
     if (!user) {
       setShowLoginModal(true);
       return;
     }
-    if (onNavigateBooking) {
-      onNavigateBooking(movie, theaterName, timeData.time, timeData.price, timeData.id_schedule);
-    }
+
+    navigate("/booking", {
+      state: {
+        movie,
+        theater: theaterName,
+        time: schedule.time,
+        scheduleId: schedule.id_schedule,
+        studioId: schedule.studio?.id_studio || schedule.id_studio || schedule.studio?.id,
+        ticketPrice: schedule.price,
+        // userId: user.id,
+        // midtransClientKey: "YOUR_MIDTRANS_CLIENT_KEY" // kalau mau langsung ke pembayaran
+      }
+    });
   };
+  // console.log(studioId);
+  // console.log(studioId.studio);
 
   const handleToggleWishlist = () => setIsWishlisted(!isWishlisted);
 
